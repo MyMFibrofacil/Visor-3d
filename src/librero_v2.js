@@ -96,8 +96,9 @@ function startViewer() {
     outline.forEach(([z, y], index) => index ? shape.lineTo(z * SIDE_D, y * SIDE_H) : shape.moveTo(z * SIDE_D, y * SIDE_H));
     shape.closePath();
     const geometry = new THREE.ExtrudeGeometry(shape, { depth: T, bevelEnabled: true, bevelSize: 1.5, bevelThickness: 1.5, bevelSegments: 2 });
-    geometry.rotateY(Math.PI / 2);
-    geometry.translate(-T / 2, 0, SIDE_D / 2);
+    // La parte alta y recta queda hacia el respaldo; la punta baja mira al frente.
+    geometry.rotateY(-Math.PI / 2);
+    geometry.translate(T / 2, 0, -SIDE_D / 2);
     return geometry;
   }
 
@@ -123,8 +124,8 @@ function startViewer() {
   const right = addPart('lateral', lateralGeometry(), [outerX, 0, 0], [100, 0, 0]);
   const sideHoles = [[0,.5],[.7365,.5],[.7554,0],[1,.1771],[1,.8229],[.7554,1],[.3683,.5],[.9333,0],[.9333,1]];
   for (const [z, y] of sideHoles) {
-    addHole(left, T/2, y*SIDE_H, SIDE_D/2-z*SIDE_D, 'x');
-    addHole(right, -T/2, y*SIDE_H, SIDE_D/2-z*SIDE_D, 'x');
+    addHole(left, T/2, y*SIDE_H, z*SIDE_D-SIDE_D/2, 'x');
+    addHole(right, -T/2, y*SIDE_H, z*SIDE_D-SIDE_D/2, 'x');
   }
 
   const baseY = 45;

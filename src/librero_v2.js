@@ -47,7 +47,7 @@ function startViewer() {
   document.getElementById('homeButton').onclick = () => { location.href = location.pathname; };
 
   const select = document.getElementById('pieceSelect');
-  select.innerHTML = '<option value="lateral">Laterales</option><option value="separador">Respaldo con manija</option><option value="base">Base</option><option value="frente">Frentes</option>';
+  select.innerHTML = '<option value="lateral">Laterales</option><option value="separador">Separador con manija</option><option value="base">Base</option><option value="frente">Frentes</option>';
   const canvas = document.getElementById('viewer');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -119,7 +119,10 @@ function startViewer() {
 
   const floor = new THREE.Mesh(new THREE.CircleGeometry(8, 64), new THREE.MeshStandardMaterial({ color: 0xd7ddd6, roughness: 1 }));
   floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
-  let current = route.get('pieza') || 'lateral', amount = 0;
+  const requestedPiece = route.get('pieza') || 'lateral';
+  // Keep the QR on already printed pre-cut panels usable.
+  let current = requestedPiece === 'panel-frentes' ? 'frente' : requestedPiece, amount = 0;
+  if (!groups[current]) current = 'lateral';
   function refresh() { meshes.forEach(mesh => { mesh.material = mesh.userData.name === current ? selected : wood; }); select.value = current; holes.forEach(hole => { hole.visible = amount > .03; }); }
   function explode(value) { amount = value; Object.values(groups).flat().forEach(group => group.position.copy(group.userData.base).addScaledVector(group.userData.explode, value)); holes.forEach(hole => { hole.visible = value > .03; }); }
   select.onchange = event => { current = event.target.value; refresh(); const url = new URL(location.href); url.searchParams.set('pieza', current); history.replaceState({}, '', url); };

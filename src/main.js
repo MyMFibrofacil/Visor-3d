@@ -110,13 +110,21 @@ function addPart(root, outlineKey, type, position, explode, rotation = [0,0,0], 
 
 function faceHole(parent, x, y, z, diameter, axis = "z", marker = "minifix") {
   const radius = Math.max(diameter/2, 2.3);
-  const geo = new THREE.CylinderGeometry(radius, radius, 1.4, 24);
-  const mesh = new THREE.Mesh(geo, pointMaterials[marker] || holeMaterial);
-  mesh.position.set(x, y, z);
-  if (axis === "z") mesh.rotation.x = Math.PI/2;
-  if (axis === "x") mesh.rotation.z = Math.PI/2;
-  mesh.userData.machining = true;
-  parent.add(mesh); machiningObjects.push(mesh);
+  const addPoint = faceZ => {
+    const geo = new THREE.CylinderGeometry(radius, radius, 1.4, 24);
+    const mesh = new THREE.Mesh(geo, pointMaterials[marker] || holeMaterial);
+    mesh.position.set(x, y, faceZ);
+    if (axis === "z") mesh.rotation.x = Math.PI/2;
+    if (axis === "x") mesh.rotation.z = Math.PI/2;
+    mesh.userData.machining = true;
+    parent.add(mesh); machiningObjects.push(mesh);
+    return mesh;
+  };
+  const mesh = addPoint(z);
+  // En la pieza terminada varias caras mecanizadas quedan contra otra placa.
+  // El segundo punto sólo es una guía de armado: deja visible la unión al
+  // mirar la cara opuesta, sin afirmar que el agujero sea pasante.
+  if (axis === "z" && z !== 0) addPoint(-z);
   return mesh;
 }
 

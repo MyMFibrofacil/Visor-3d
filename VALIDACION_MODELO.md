@@ -34,10 +34,9 @@ Fuentes usadas: TCN de pantógrafo, DXF de las plantillas y los siete XML de Fle
 - Los perfiles de los laterales salen de `Plantilla Mesa.dxf` y `Plantilla Silla.dxf`.
 - Los restantes perfiles salen del TCN compensando los 4 mm de radio de herramienta.
 
-## Ajuste visual de herrajes y orientación — 2026-10-08
+## Ajuste visual de uniones y orientación — 2026-10-08
 
-- En el armado completo, los herrajes desmontables quedan ocultos dentro de las uniones para evitar que sobresalgan de las piezas.
-- Al abrir el despiece, tarugos, pernos Minifix, excéntricas y tornillos negros se muestran separados cerca de sus puntos de unión.
-- Los tarugos de 30 mm se centran en la cara de contacto, representando aproximadamente 15 mm de inserción por pieza. El tamaño y la forma de los herrajes son ilustrativos.
+- El visor usa puntos de color en los mecanizados: amarillo para tarugo, azul para Minifix y oscuro para tornillo.
+- En las caras planas se replica cada punto en la cara opuesta como guía visual, para que todos los puntos de unión se puedan identificar al girar el modelo; no representa un agujero pasante adicional.
 - Se invirtió el eje longitudinal del respaldo y de la traba para que sus tres y dos puntos de unión, respectivamente, coincidan con los mecanizados de los laterales.
 - Verificación geométrica posterior al ajuste: desajuste máximo de 0,0043 mm para el respaldo y 0,0070 mm para la traba, comparando las posiciones reconstruidas con las coordenadas de los XML/DXF normalizadas en `model-data.json`.

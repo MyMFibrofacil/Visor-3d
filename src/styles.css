@@ -34,9 +34,8 @@ button { width: 100%; margin-top: 10px; border: 0; border-radius: 11px; padding:
 .legend { display:flex; gap:14px; margin-top:8px; color:#617168; font-size:11px; font-weight:800; }
 .legend span { display:flex; align-items:center; gap:5px; }
 .legend i { width:9px; height:9px; border-radius:50%; display:inline-block; }
-.dowel-dot { background:#c99a62; }
-.hardware-dot { background:#9da7aa; }
-.screw-dot { background:#202522; }
+.dowel-dot { background:#36a5cf; }
+.hardware-dot { background:#26322e; }
 
 .piece-title { display: flex; align-items: center; gap: 11px; }
 .swatch { flex: 0 0 auto; width: 17px; height: 36px; border-radius: 999px; background: var(--orange); box-shadow: 0 0 0 4px rgba(255,100,47,.16); }

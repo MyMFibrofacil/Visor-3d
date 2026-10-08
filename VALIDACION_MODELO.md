@@ -36,7 +36,7 @@ Fuentes usadas: TCN de pantógrafo, DXF de las plantillas y los siete XML de Fle
 
 ## Ajuste visual de uniones y orientación — 2026-10-08
 
-- El visor usa puntos de color en los mecanizados: amarillo para tarugo, azul para Minifix y oscuro para tornillo.
-- En las caras planas se replica cada punto en la cara opuesta como guía visual, para que todos los puntos de unión se puedan identificar al girar el modelo; no representa un agujero pasante adicional.
+- El visor usa puntos simples: azul para tarugo y oscuro para tornillo/minifix.
+- Cada punto se muestra una sola vez, en la cara mecanizada indicada por el archivo de origen.
 - Se invirtió el eje longitudinal del respaldo y de la traba para que sus tres y dos puntos de unión, respectivamente, coincidan con los mecanizados de los laterales.
 - Verificación geométrica posterior al ajuste: desajuste máximo de 0,0043 mm para el respaldo y 0,0070 mm para la traba, comparando las posiciones reconstruidas con las coordenadas de los XML/DXF normalizadas en `model-data.json`.

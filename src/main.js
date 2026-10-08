@@ -66,11 +66,8 @@ const woodMaterial = new THREE.MeshStandardMaterial({ map: woodTexture(), color:
 const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xe3262e, roughness: .42, emissive: 0x5a0000, emissiveIntensity: .22 });
 const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x5a321d, transparent: true, opacity: .5 });
 const holeMaterial = new THREE.MeshStandardMaterial({ color: 0x39271d, roughness: .9 });
-const pointMaterials = {
-  dowel: new THREE.MeshStandardMaterial({ color: 0xf0b84c, roughness: .45, emissive: 0x623c00, emissiveIntensity: .18 }),
-  minifix: new THREE.MeshStandardMaterial({ color: 0x4386d1, roughness: .38, emissive: 0x082653, emissiveIntensity: .16 }),
-  screw: new THREE.MeshStandardMaterial({ color: 0x303b45, roughness: .35, emissive: 0x030506, emissiveIntensity: .12 })
-};
+const dowelMaterial = new THREE.MeshStandardMaterial({ color: 0x36a5cf, roughness: .45, emissive: 0x063848, emissiveIntensity: .22 });
+const hardwareMaterial = new THREE.MeshStandardMaterial({ color: 0x26322e, roughness: .32, metalness: .4 });
 
 const tableRoot = new THREE.Group();
 const chairRoot = new THREE.Group();
@@ -108,31 +105,20 @@ function addPart(root, outlineKey, type, position, explode, rotation = [0,0,0], 
   return group;
 }
 
-function faceHole(parent, x, y, z, diameter, axis = "z", marker = "minifix") {
-  const radius = Math.max(diameter/2, 2.3);
-  const addPoint = faceZ => {
-    const geo = new THREE.CylinderGeometry(radius, radius, 1.4, 24);
-    const mesh = new THREE.Mesh(geo, pointMaterials[marker] || holeMaterial);
-    mesh.position.set(x, y, faceZ);
-    if (axis === "z") mesh.rotation.x = Math.PI/2;
-    if (axis === "x") mesh.rotation.z = Math.PI/2;
-    mesh.userData.machining = true;
-    parent.add(mesh); machiningObjects.push(mesh);
-    return mesh;
-  };
-  const mesh = addPoint(z);
-  // En la pieza terminada varias caras mecanizadas quedan contra otra placa.
-  // El segundo punto sólo es una guía de armado: deja visible la unión al
-  // mirar la cara opuesta, sin afirmar que el agujero sea pasante.
-  if (axis === "z" && z !== 0) addPoint(-z);
+function faceHole(parent, x, y, z, diameter, axis = "z", kind = "hardware") {
+  const radius = Math.max(diameter/2, 3.2);
+  const geo = new THREE.CylinderGeometry(radius, radius, 1.4, 24);
+  const mesh = new THREE.Mesh(geo, kind === "dowel" ? dowelMaterial : hardwareMaterial);
+  mesh.position.set(x, y, z);
+  if (axis === "z") mesh.rotation.x = Math.PI/2;
+  if (axis === "x") mesh.rotation.z = Math.PI/2;
+  mesh.userData.machining = true;
+  parent.add(mesh); machiningObjects.push(mesh);
   return mesh;
 }
 
 function markerFor(item) {
-  const value = item.kind || item.joint || "minifix";
-  if (value.startsWith("tarugo")) return "dowel";
-  if (value.startsWith("tornillo")) return "screw";
-  return "minifix";
+  return (item.kind || item.joint || "").startsWith("tarugo") ? "dowel" : "hardware";
 }
 
 function addTable() {
@@ -214,21 +200,21 @@ function addChair() {
   const seat = addPart(chairRoot, "asiento", "asiento", [0,seatY,seatCenterZ], [0,105,0], [Math.PI/2,0,0]);
   for (const endX of [-146.95,146.95]) for (const h of [{v:47.285,d:8,k:"dowel"},{v:94.57,d:5,k:"screw"},{v:141.855,d:8,k:"dowel"}]) {
     const yy=h.v-109.5;
-    faceHole(seat,endX,yy,0,h.d,"x",h.k);
+    faceHole(seat,endX,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
   }
 
   const back = boardTransform({x:313.84,y:108.36},{x:301.89,y:193.39},42.932,185);
   const backPart = addPart(chairRoot, "respaldo", "respaldo", [0,back.y,back.z], [0,55,75], [back.angle,0,0]);
   for (const endX of [-146.95,146.95]) for (const h of [{v:42.932,d:8,k:"dowel"},{v:85.863,d:5,k:"screw"},{v:128.794,d:8,k:"dowel"}]) {
     const yy=h.v-92.5;
-    faceHole(backPart,endX,yy,0,h.d,"x",h.k);
+    faceHole(backPart,endX,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
   }
 
   const brace = boardTransform({x:323.74,y:460.21},{x:328.24,y:479.69},20.75,60);
   const bracePart = addPart(chairRoot, "trava", "trava", [0,brace.y,brace.z], [0,-70,75], [brace.angle,0,0]);
   for (const endX of [-146.95,146.95]) for (const h of [{v:20.75,d:8,k:"dowel"},{v:40.75,d:5,k:"screw"}]) {
     const yy=h.v-30;
-    faceHole(bracePart,endX,yy,0,h.d,"x",h.k);
+    faceHole(bracePart,endX,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
   }
 }
 

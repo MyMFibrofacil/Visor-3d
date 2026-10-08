@@ -66,9 +66,11 @@ const woodMaterial = new THREE.MeshStandardMaterial({ map: woodTexture(), color:
 const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xe3262e, roughness: .42, emissive: 0x5a0000, emissiveIntensity: .22 });
 const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x5a321d, transparent: true, opacity: .5 });
 const holeMaterial = new THREE.MeshStandardMaterial({ color: 0x39271d, roughness: .9 });
-const dowelMaterial = new THREE.MeshStandardMaterial({ color: 0xc99a62, roughness: .8 });
-const minifixMaterial = new THREE.MeshStandardMaterial({ color: 0x9da7aa, roughness: .28, metalness: .72 });
-const screwMaterial = new THREE.MeshStandardMaterial({ color: 0x202522, roughness: .35, metalness: .45 });
+const pointMaterials = {
+  dowel: new THREE.MeshStandardMaterial({ color: 0xf0b84c, roughness: .45, emissive: 0x623c00, emissiveIntensity: .18 }),
+  minifix: new THREE.MeshStandardMaterial({ color: 0x4386d1, roughness: .38, emissive: 0x082653, emissiveIntensity: .16 }),
+  screw: new THREE.MeshStandardMaterial({ color: 0x303b45, roughness: .35, emissive: 0x030506, emissiveIntensity: .12 })
+};
 
 const tableRoot = new THREE.Group();
 const chairRoot = new THREE.Group();
@@ -76,7 +78,6 @@ tableRoot.scale.setScalar(U); chairRoot.scale.setScalar(U);
 scene.add(tableRoot, chairRoot);
 const selectable = [];
 const machiningObjects = [];
-const hardwareObjects = [];
 
 function profileGeometry(points, depth = T, bevel = 1.15) {
   const shape = new THREE.Shape();
@@ -107,10 +108,10 @@ function addPart(root, outlineKey, type, position, explode, rotation = [0,0,0], 
   return group;
 }
 
-function faceHole(parent, x, y, z, diameter, axis = "z") {
+function faceHole(parent, x, y, z, diameter, axis = "z", marker = "minifix") {
   const radius = Math.max(diameter/2, 2.3);
   const geo = new THREE.CylinderGeometry(radius, radius, 1.4, 24);
-  const mesh = new THREE.Mesh(geo, holeMaterial);
+  const mesh = new THREE.Mesh(geo, pointMaterials[marker] || holeMaterial);
   mesh.position.set(x, y, z);
   if (axis === "z") mesh.rotation.x = Math.PI/2;
   if (axis === "x") mesh.rotation.z = Math.PI/2;
@@ -119,73 +120,16 @@ function faceHole(parent, x, y, z, diameter, axis = "z") {
   return mesh;
 }
 
-function addHardwareGroup(parent, localPosition, localQuaternion = null) {
-  parent.updateMatrix();
-  const root = parent.parent;
-  const group = new THREE.Group();
-  group.position.copy(new THREE.Vector3(...localPosition).applyMatrix4(parent.matrix));
-  if (localQuaternion) group.quaternion.copy(parent.quaternion).multiply(localQuaternion);
-  else group.quaternion.copy(parent.quaternion);
-  group.userData.base = group.position.clone();
-  group.userData.owner = parent;
-  group.userData.type = "minifix";
-  group.userData.pull = new THREE.Vector3();
-  root.add(group);
-  hardwareObjects.push(group);
-  return group;
-}
-
-function axialHardware(parent, start, direction, length, radius, material, inset = 10, pointed = false) {
-  parent.updateMatrix();
-  const dir = new THREE.Vector3(...direction).applyQuaternion(parent.quaternion).normalize();
-  const rootStart = new THREE.Vector3(...start).applyMatrix4(parent.matrix);
-  const group = new THREE.Group();
-  group.position.copy(rootStart).addScaledVector(dir, length/2-inset);
-  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 18), material);
-  shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir);
-  group.add(shaft);
-  if (pointed) {
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(radius*.85, 4, 14), material);
-    tip.position.copy(dir).multiplyScalar(length/2-2);
-    tip.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
-    group.add(tip);
-    const head = new THREE.Mesh(new THREE.CylinderGeometry(radius*1.8,radius*1.8,2.2,20),material);
-    head.position.copy(dir).multiplyScalar(-length/2-1.1);
-    head.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
-    group.add(head);
-  } else if (material === minifixMaterial) {
-    const head = new THREE.Mesh(new THREE.CylinderGeometry(radius*1.8,radius*1.8,2.4,20),material);
-    head.position.copy(dir).multiplyScalar(-length/2-1.2);
-    head.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
-    group.add(head);
-  }
-  group.userData.base = group.position.clone();
-  group.userData.owner = parent;
-  group.userData.type = material === dowelMaterial ? "dowel" : material === screwMaterial ? "screw" : "minifix";
-  // Cada herraje sale del agujero de su propia placa, en vez de desplazarse
-  // desde el centro del modelo junto con todos los demás.
-  // El tarugo se retira hacia el lado que sobresale de su agujero. Los demás
-  // herrajes conservan la dirección inversa porque se representan desde su
-  // cabeza o su alojamiento.
-  const pullDistance = pointed ? -52 : material === dowelMaterial ? 46 : -36;
-  group.userData.pull = dir.clone().multiplyScalar(pullDistance);
-  parent.parent.add(group); hardwareObjects.push(group);
-  return group;
-}
-
-function minifixCam(parent, x, y, faceZ) {
-  const sign = Math.sign(faceZ) || 1;
-  const group = addHardwareGroup(parent,[x,y,faceZ-sign*6.3]);
-  group.userData.pull.set(0,0,sign*34).applyQuaternion(parent.quaternion);
-  const cam = new THREE.Mesh(new THREE.CylinderGeometry(7.2,7.2,12,32),minifixMaterial);
-  cam.rotation.x=Math.PI/2; group.add(cam);
-  const slot = new THREE.Mesh(new THREE.BoxGeometry(7.2,.8,1),screwMaterial);
-  slot.position.z=sign*6; group.add(slot);
+function markerFor(item) {
+  const value = item.kind || item.joint || "minifix";
+  if (value.startsWith("tarugo")) return "dowel";
+  if (value.startsWith("tornillo")) return "screw";
+  return "minifix";
 }
 
 function addTable() {
   const top = addPart(tableRoot, "tapa", "tapa", [0, 491.25, 0], [0,145,0], [Math.PI/2,0,0]);
-  for (const h of modelData.machining.top) faceHole(top,h.x-400,h.z-250,T/2+.7,h.d,"z");
+  for (const h of modelData.machining.top) faceHole(top,h.x-400,h.z-250,T/2+.7,h.d,"z",markerFor(h));
 
   for (const z of [-171,171]) {
     const sign = Math.sign(z);
@@ -195,18 +139,15 @@ function addTable() {
     const faceZ = -sign * (T/2+.7);
     for (const h of modelData.machining.rail.face) {
       const px=h.x-341.95, py=47.5-h.v;
-      faceHole(rail,px,py,faceZ,h.d,"z");
-      if(h.d===15) minifixCam(rail,px,py,faceZ);
+      faceHole(rail,px,py,faceZ,h.d,"z",markerFor(h));
     }
     for (const h of modelData.machining.rail.topEdge) {
       const px=h.x-341.95;
-      faceHole(rail,px,47.5,0,h.d,"y");
-      axialHardware(rail,[px,47.5,0],[0,h.depth===22?1:-1,0],h.depth===22?30:32,h.depth===22?4:2.6,h.depth===22?dowelMaterial:minifixMaterial,h.depth===22?15:0);
+      faceHole(rail,px,47.5,0,h.d,"y",markerFor(h));
     }
     for (const endX of [-341.95,341.95]) for (const h of modelData.machining.rail.ends) {
       const py=47.5-h.v;
-      faceHole(rail,endX,py,0,h.d,"x");
-      if(h.depth===22) axialHardware(rail,[endX,py,0],[Math.sign(endX),0,0],30,4,dowelMaterial,15);
+      faceHole(rail,endX,py,0,h.d,"x",markerFor(h));
     }
   }
 
@@ -216,14 +157,11 @@ function addTable() {
     const faceZ = sign > 0 ? T/2+.7 : -T/2-.7;
     for (const h of modelData.machining.tableSide.face) {
       const px=h.z-250, py=h.y-241;
-      faceHole(side,px,py,faceZ,h.d,"z");
-      if(h.d===15) minifixCam(side,px,py,faceZ);
-      if(h.d===5) axialHardware(side,[px,py,faceZ],[0,0,sign],32,2.6,minifixMaterial,0);
+      faceHole(side,px,py,faceZ,h.d,"z",markerFor(h));
     }
     for (const h of modelData.machining.tableSide.topEdge) {
       const px=h.z-250;
-      faceHole(side,px,241,0,h.d,"y");
-      axialHardware(side,[px,241,0],[0,h.depth===22?1:-1,0],h.depth===22?30:32,h.depth===22?4:2.6,h.depth===22?dowelMaterial:minifixMaterial,h.depth===22?15:0);
+      faceHole(side,px,241,0,h.d,"y",markerFor(h));
     }
   }
 }
@@ -257,8 +195,7 @@ function addChair() {
       for (const h of group) {
         const p = chairSourcePoint(h.z,h.sourceY);
         const holeFace = h.d===5 ? outerFaceZ : faceZ;
-        faceHole(side,p.z-sideZ,p.y-maxY/2,holeFace,h.d,"z");
-        if(h.d===5) axialHardware(side,[p.z-sideZ,p.y-maxY/2,outerFaceZ],[0,0,sign],40,3,screwMaterial,0,true);
+        faceHole(side,p.z-sideZ,p.y-maxY/2,holeFace,h.d,"z",markerFor(h));
       }
     }
   }
@@ -269,24 +206,21 @@ function addChair() {
   const seat = addPart(chairRoot, "asiento", "asiento", [0,seatY,seatCenterZ], [0,105,0], [Math.PI/2,0,0]);
   for (const endX of [-146.95,146.95]) for (const h of [{v:47.285,d:8,k:"dowel"},{v:94.57,d:5,k:"screw"},{v:141.855,d:8,k:"dowel"}]) {
     const yy=h.v-109.5;
-    faceHole(seat,endX,yy,0,h.d,"x");
-    if(h.k==="dowel") axialHardware(seat,[endX,yy,0],[Math.sign(endX),0,0],30,4,dowelMaterial,15);
+    faceHole(seat,endX,yy,0,h.d,"x",h.k);
   }
 
   const back = boardTransform({x:313.84,y:108.36},{x:301.89,y:193.39},42.932,185);
   const backPart = addPart(chairRoot, "respaldo", "respaldo", [0,back.y,back.z], [0,55,75], [back.angle,0,0]);
   for (const endX of [-146.95,146.95]) for (const h of [{v:42.932,d:8,k:"dowel"},{v:85.863,d:5,k:"screw"},{v:128.794,d:8,k:"dowel"}]) {
     const yy=h.v-92.5;
-    faceHole(backPart,endX,yy,0,h.d,"x");
-    if(h.k==="dowel") axialHardware(backPart,[endX,yy,0],[Math.sign(endX),0,0],30,4,dowelMaterial,15);
+    faceHole(backPart,endX,yy,0,h.d,"x",h.k);
   }
 
   const brace = boardTransform({x:323.74,y:460.21},{x:328.24,y:479.69},20.75,60);
   const bracePart = addPart(chairRoot, "trava", "trava", [0,brace.y,brace.z], [0,-70,75], [brace.angle,0,0]);
   for (const endX of [-146.95,146.95]) for (const h of [{v:20.75,d:8,k:"dowel"},{v:40.75,d:5,k:"screw"}]) {
     const yy=h.v-30;
-    faceHole(bracePart,endX,yy,0,h.d,"x");
-    if(h.k==="dowel") axialHardware(bracePart,[endX,yy,0],[Math.sign(endX),0,0],30,4,dowelMaterial,15);
+    faceHole(bracePart,endX,yy,0,h.d,"x",h.k);
   }
 }
 
@@ -300,7 +234,6 @@ const shortPiece = { t:"tapa", f:"faja", lm:"lateral-mesa", ls:"lateral-silla", 
 let selectedType = params.get("pieza") || shortPiece[params.get("p")] || "tapa";
 if (!pieces[selectedType]) selectedType = "tapa";
 let explodeAmount = 0;
-let explodeAnimation = null;
 
 function setFamily(family) {
   tableRoot.visible = family === "table"; chairRoot.visible = family === "chair";
@@ -319,48 +252,9 @@ function updateSelection(resetCamera=false) {
 
 function updateExplode(value) {
   explodeAmount = value;
-  // Primero se separan las placas. Los herrajes aparecen en tres etapas para
-  // que se pueda leer con claridad qué entra en cada agujero.
-  const boardProgress = Math.min(value / .38, 1);
   for (const root of [tableRoot,chairRoot]) root.children.forEach(object => {
-    if (object.userData.base && object.userData.explode) object.position.copy(object.userData.base).addScaledVector(object.userData.explode,boardProgress);
+    if (object.userData.base && object.userData.explode) object.position.copy(object.userData.base).addScaledVector(object.userData.explode,value);
   });
-  const phases = { dowel:[.38,.57], minifix:[.57,.77], screw:[.77,.97] };
-  hardwareObjects.forEach(object => {
-    const [from,to] = phases[object.userData.type] || phases.minifix;
-    const progress = THREE.MathUtils.clamp((value-from)/(to-from),0,1);
-    const ownerExplode = object.userData.owner?.userData.explode || new THREE.Vector3();
-    object.position.copy(object.userData.base)
-      .addScaledVector(ownerExplode,boardProgress)
-      .addScaledVector(object.userData.pull,progress);
-    object.visible = progress > .02;
-  });
-  const active = value < .38 ? "boards" : value < .57 ? "dowel" : value < .77 ? "minifix" : "screw";
-  ["boards","dowel","minifix","screw"].forEach(step => document.getElementById(`step-${step}`).classList.toggle("active", step === active));
-  const hints = {
-    boards:"Primero separá las placas para ver los puntos de unión.",
-    dowel:"Ubicá los tarugos en sus agujeros antes de acercar la otra pieza.",
-    minifix:"Colocá los minifix y giralos para trabar las uniones.",
-    screw:"Por último colocá y ajustá los tornillos visibles."
-  };
-  document.getElementById("sequenceHint").textContent = hints[active];
-}
-
-function animateExplodeTo(target) {
-  if (explodeAnimation) cancelAnimationFrame(explodeAnimation);
-  const from = Number(explode.value) / 100;
-  const started = performance.now();
-  const duration = target > from ? 2700 : 850;
-  const tick = now => {
-    const elapsed = Math.min((now - started) / duration, 1);
-    const eased = elapsed < .5 ? 2 * elapsed * elapsed : 1 - Math.pow(-2 * elapsed + 2, 2) / 2;
-    const next = from + (target - from) * eased;
-    explode.value = Math.round(next * 100);
-    updateExplode(next);
-    if (elapsed < 1) explodeAnimation = requestAnimationFrame(tick);
-    else explodeAnimation = null;
-  };
-  explodeAnimation = requestAnimationFrame(tick);
 }
 
 document.getElementById("pieceSelect").addEventListener("change", event => {
@@ -368,9 +262,9 @@ document.getElementById("pieceSelect").addEventListener("change", event => {
   const url=new URL(location.href); url.searchParams.set("pieza",selectedType); history.replaceState({},"",url);
 });
 const explode = document.getElementById("explode");
-explode.addEventListener("input", event => { if (explodeAnimation) cancelAnimationFrame(explodeAnimation); explodeAnimation=null; updateExplode(Number(event.target.value)/100); });
+explode.addEventListener("input", event => updateExplode(Number(event.target.value)/100));
 document.getElementById("explodeButton").addEventListener("click", () => {
-  const next=Number(explode.value)>50?0:100; animateExplodeTo(next/100);
+  const next=Number(explode.value)>50?0:100; explode.value=next; updateExplode(next/100);
   document.getElementById("explodeButton").textContent=next?"Volver a ver armado":"Ver despiece completo";
 });
 
@@ -390,6 +284,5 @@ function resize() {
 function animate(){resize();controls.update();renderer.render(scene,camera);requestAnimationFrame(animate);}
 
 machiningObjects.forEach(object => object.visible = true);
-hardwareObjects.forEach(object => object.visible = false);
 setFamily(pieces[selectedType].family); updateSelection(); updateExplode(0); animate();
 document.getElementById("loading").classList.add("ready");

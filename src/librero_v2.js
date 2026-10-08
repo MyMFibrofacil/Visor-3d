@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { catalog, defaultClient, defaultFurniture, getProduct } from './catalog.js';
 import './styles.css';
 import model from './librero-data.json';
+import { responsiveCamera } from './responsive-camera.js';
 
 const route = new URLSearchParams(location.search);
 getProduct(route.get('cliente') || defaultClient, route.get('mueble') || defaultFurniture);
@@ -59,6 +60,7 @@ function startViewer() {
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, 2.3, 0);
   controls.enableDamping = true;
+  const framing = responsiveCamera(camera, controls, canvas, 1.1);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x66736c, 2.5));
   const keyLight = new THREE.DirectionalLight(0xffffff, 3);
   keyLight.position.set(5, 8, 6); keyLight.castShadow = true; scene.add(keyLight);
@@ -125,6 +127,6 @@ function startViewer() {
   document.getElementById('explodeButton').onclick = () => { const next = amount > .5 ? 0 : 1; document.getElementById('explode').value = next*100; explode(next); document.getElementById('explodeButton').textContent = next ? 'Volver a ver armado' : 'Ver despiece completo'; };
   const raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2();
   canvas.onclick = event => { const rect = canvas.getBoundingClientRect(); mouse.set((event.clientX-rect.left)/rect.width*2-1, -(event.clientY-rect.top)/rect.height*2+1); raycaster.setFromCamera(mouse,camera); const hit=raycaster.intersectObjects(meshes)[0]; if(hit){current=hit.object.userData.name;refresh();} };
-  function loop(){const width=canvas.clientWidth,height=canvas.clientHeight;if(canvas.width!==width*renderer.getPixelRatio()){renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();}controls.update();renderer.render(scene,camera);requestAnimationFrame(loop);}
+  function loop(){const width=canvas.clientWidth,height=canvas.clientHeight;if(canvas.width!==Math.round(width*renderer.getPixelRatio())||canvas.height!==Math.round(height*renderer.getPixelRatio())){renderer.setSize(width,height,false);framing.resize();}controls.update();renderer.render(scene,camera);requestAnimationFrame(loop);}
   refresh(); loop(); document.getElementById('loading').classList.add('ready');
 }

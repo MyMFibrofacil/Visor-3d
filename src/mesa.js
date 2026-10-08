@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import modelData from "./model-data.json";
 import { catalog, defaultClient, defaultFurniture, getProduct } from "./catalog.js";
 import "./styles.css";
+import { responsiveCamera } from './responsive-camera.js';
 
 const route = new URLSearchParams(location.search);
 const hasDirectPiece = route.has("pieza") || route.has("p");
@@ -83,13 +84,12 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xe9eee9, 10, 20);
+scene.fog = new THREE.Fog(0xe9eee9, 110, 180);
 const camera = new THREE.PerspectiveCamera(32, 1, .05, 100);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = .07;
-controls.minDistance = 5;
-controls.maxDistance = 18;
+const framing = responsiveCamera(camera, controls, canvas);
 controls.maxPolarAngle = Math.PI * .54;
 
 scene.add(new THREE.HemisphereLight(0xffffff, 0x6b756f, 2.25));
@@ -293,6 +293,7 @@ function setFamily(family) {
   tableRoot.visible = family === "table"; chairRoot.visible = family === "chair";
   if (family === "table") { camera.position.set(8.5,7.2,9.4); controls.target.set(0,2.5,0); document.getElementById("sceneName").textContent = "Mesa"; }
   else { camera.position.set(6.5,5.2,7.8); controls.target.set(0,2.55,.2); document.getElementById("sceneName").textContent = "Una silla"; }
+  framing.resize(true);
   controls.update();
 }
 
@@ -333,7 +334,7 @@ canvas.addEventListener("pointerup", event => {
 
 function resize() {
   const width=canvas.clientWidth,height=canvas.clientHeight;
-  if (canvas.width!==Math.round(width*renderer.getPixelRatio())||canvas.height!==Math.round(height*renderer.getPixelRatio())) { renderer.setSize(width,height,false); camera.aspect=width/height; camera.updateProjectionMatrix(); }
+  if (canvas.width!==Math.round(width*renderer.getPixelRatio())||canvas.height!==Math.round(height*renderer.getPixelRatio())) { renderer.setSize(width,height,false); framing.resize(); }
 }
 function animate(){resize();controls.update();renderer.render(scene,camera);requestAnimationFrame(animate);}
 

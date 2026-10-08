@@ -37,7 +37,7 @@ Fuentes usadas: TCN de pantógrafo, DXF de las plantillas y los siete XML de Fle
 ## Ajuste visual de uniones y orientación — 2026-10-08
 
 - El visor usa puntos simples: azul para tarugo y oscuro para tornillo/minifix.
-- Cada punto se muestra una sola vez, en la cara mecanizada indicada por el archivo de origen.
+- Cada punto se muestra una sola vez, en la cara mecanizada indicada por el archivo de origen. Al elegir una pieza, sus puntos se dibujan por encima de las piezas vecinas para que también se vean con el mueble armado; su coordenada no cambia.
 - Se invirtió el eje longitudinal del respaldo y de la traba para que sus tres y dos puntos de unión, respectivamente, coincidan con los mecanizados de los laterales.
 - Verificación geométrica posterior al ajuste: desajuste máximo de 0,0043 mm para el respaldo y 0,0070 mm para la traba, comparando las posiciones reconstruidas con las coordenadas de los XML/DXF normalizadas en `model-data.json`.
 
@@ -50,10 +50,10 @@ Se contrastó cada punto del visor con los XML de Flex de `MA0009040003 Mesa y S
 |---|---|---:|
 | Tapa | `MA000904000303180101.xml` | 14 verticales |
 | Faja | `MA000904000302180101.xml` | 12: 4 de cara, 4 de canto superior y 4 de extremos |
-| Lateral de mesa | `Plantilla Mesa.xml` | 5 de cara y 3 de canto por lateral |
-| Lateral de silla | `MA000904000304180101.xml` y `Plantilla Silla.xml` | 8 de frente y 6 de dorso por lateral |
+| Lateral de mesa | `MA000904000301180101.xml` | 5 de cara y 3 de canto por lateral |
+| Lateral de silla | `MA000904000304180101.xml` | 8 de frente y 6 de dorso por lateral |
 | Asiento | `MA000904000305180101.xml` | 3 horizontales por extremo |
 | Respaldo | `MA000904000306180101.xml` | 3 horizontales por extremo |
 | Traba | `MA000904000307180101.xml` | 2 horizontales por extremo de cada traba |
 
-Los tornillos de asiento, respaldo y traba se corrigieron a diámetro 6 mm, tal como indican sus XML. Las seis perforaciones del dorso del lateral de silla se añadieron con la cara indicada por `Back Vertical Hole`.
+Los tornillos de asiento, respaldo y traba se corrigieron a diámetro 6 mm, tal como indican sus XML. Las seis perforaciones del dorso del lateral de silla se añadieron con la cara indicada por `Back Vertical Hole`. Para la mesa, las coordenadas del lateral se normalizan desde el anidado del XML 301: X − 25 mm e Y − 68 mm para la cara, y los tres agujeros de canto se ubican sobre el borde superior real de la pieza.

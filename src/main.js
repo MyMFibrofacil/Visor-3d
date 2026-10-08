@@ -108,11 +108,13 @@ function addPart(root, outlineKey, type, position, explode, rotation = [0,0,0], 
 function faceHole(parent, x, y, z, diameter, axis = "z", kind = "hardware") {
   const radius = Math.max(diameter/2, 3.2);
   const geo = new THREE.CylinderGeometry(radius, radius, 1.4, 24);
-  const mesh = new THREE.Mesh(geo, kind === "dowel" ? dowelMaterial : hardwareMaterial);
+  const material = (kind === "dowel" ? dowelMaterial : hardwareMaterial).clone();
+  const mesh = new THREE.Mesh(geo, material);
   mesh.position.set(x, y, z);
   if (axis === "z") mesh.rotation.x = Math.PI/2;
   if (axis === "x") mesh.rotation.z = Math.PI/2;
   mesh.userData.machining = true;
+  mesh.userData.partType = parent.userData.partType;
   parent.add(mesh); machiningObjects.push(mesh);
   return mesh;
 }
@@ -241,6 +243,12 @@ function updateSelection(resetCamera=false) {
   const piece = pieces[selectedType];
   if (resetCamera) setFamily(piece.family); else { tableRoot.visible=piece.family==="table"; chairRoot.visible=piece.family==="chair"; }
   selectable.forEach(mesh => mesh.material = mesh.userData.partType === selectedType ? highlightMaterial : woodMaterial);
+  machiningObjects.forEach(mesh => {
+    const isSelected = mesh.userData.partType === selectedType;
+    mesh.material.depthTest = !isSelected;
+    mesh.renderOrder = isSelected ? 10 : 0;
+    mesh.material.needsUpdate = true;
+  });
   document.getElementById("pieceSelect").value = selectedType;
   document.title = `${piece.name} · Armado 3D Emi`;
 }

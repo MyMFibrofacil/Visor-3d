@@ -4,16 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#183126">
-  <title>Armado 3D - Mesa y Sillas Emi</title>
+  <title>Guías de armado 3D</title>
 </head>
 <body>
-  <main class="app-shell">
+  <main id="catalogApp" class="catalog-shell">
+    <header class="catalog-hero">
+      <p class="eyebrow">GUÍAS DE ARMADO</p>
+      <h1>Elegí un mueble</h1>
+      <p>Escaneá el QR de una etiqueta o buscá el cliente y el modelo para ver su armado en 3D.</p>
+    </header>
+
+    <section id="clientStep" class="catalog-step" aria-labelledby="clientHeading">
+      <p class="section-kicker">Paso 1</p>
+      <h2 id="clientHeading">Cliente</h2>
+      <div id="clientList" class="catalog-grid"></div>
+    </section>
+
+    <section id="furnitureStep" class="catalog-step" hidden aria-labelledby="furnitureHeading">
+      <button id="backToClients" class="back-button" type="button">← Clientes</button>
+      <p class="section-kicker">Paso 2</p>
+      <h2 id="furnitureHeading">Mueble</h2>
+      <p id="selectedClientName" class="selected-client"></p>
+      <div id="furnitureList" class="catalog-grid"></div>
+    </section>
+  </main>
+
+  <main id="viewerApp" class="app-shell" hidden>
     <header class="topbar">
       <div>
-        <p class="eyebrow">GUÍA DE ARMADO 3D</p>
-        <h1>Mesa y Sillas Emi</h1>
+        <p id="clientName" class="eyebrow">PICKY KIDS · GUÍA DE ARMADO 3D</p>
+        <h1 id="productName">Mesa y Sillas Emi</h1>
       </div>
-      <div class="header-badges"><span id="sceneName" class="scene-name">Mesa</span><span class="gesture">Arrastrá para girar</span></div>
+      <div class="header-badges"><button id="homeButton" class="home-button" type="button">Muebles</button><span id="sceneName" class="scene-name">Mesa</span><span class="gesture">Arrastrá para girar</span></div>
     </header>
 
     <section class="stage" aria-label="Modelo 3D del producto">

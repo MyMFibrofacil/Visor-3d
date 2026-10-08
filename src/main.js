@@ -1,7 +1,65 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import modelData from "./model-data.json";
+import { catalog, defaultClient, defaultFurniture, getProduct } from "./catalog.js";
 import "./styles.css";
+
+const route = new URLSearchParams(location.search);
+const hasDirectPiece = route.has("pieza") || route.has("p");
+const requestedClient = route.get("cliente") || defaultClient;
+const requestedFurniture = route.get("mueble") || defaultFurniture;
+const selectedProduct = getProduct(requestedClient, requestedFurniture) || getProduct(defaultClient, defaultFurniture);
+const shouldOpenViewer = route.has("mueble") || hasDirectPiece;
+
+function showCatalog() {
+  const clientList = document.getElementById("clientList");
+  const furnitureList = document.getElementById("furnitureList");
+  const clientStep = document.getElementById("clientStep");
+  const furnitureStep = document.getElementById("furnitureStep");
+  const clientName = document.getElementById("selectedClientName");
+  let activeClient = route.get("cliente") || null;
+
+  const renderClients = () => {
+    clientList.replaceChildren(...Object.entries(catalog).map(([slug, client]) => {
+      const button = document.createElement("button");
+      button.className = "catalog-card";
+      button.type = "button";
+      button.innerHTML = `<span class="card-label">CLIENTE</span><strong>${client.name}</strong><small>${client.client} · ${client.description}</small><span class="card-action">Ver muebles →</span>`;
+      button.addEventListener("click", () => { activeClient = slug; renderFurniture(); });
+      return button;
+    }));
+  };
+
+  const renderFurniture = () => {
+    const client = catalog[activeClient];
+    if (!client) return;
+    clientStep.hidden = true;
+    furnitureStep.hidden = false;
+    clientName.textContent = `${client.name} · ${client.client}`;
+    furnitureList.replaceChildren(...Object.entries(client.furniture).map(([slug, furniture]) => {
+      const button = document.createElement("button");
+      button.className = "catalog-card furniture-card";
+      button.type = "button";
+      button.innerHTML = `<span class="card-label">MUEBLE</span><strong>${furniture.name}</strong><small>${furniture.description}</small><span class="card-action">Abrir visor 3D →</span>`;
+      button.addEventListener("click", () => location.href = `?cliente=${encodeURIComponent(activeClient)}&mueble=${encodeURIComponent(slug)}`);
+      return button;
+    }));
+  };
+
+  document.getElementById("backToClients").addEventListener("click", () => {
+    activeClient = null; furnitureStep.hidden = true; clientStep.hidden = false;
+    history.replaceState({}, "", location.pathname);
+  });
+  renderClients();
+  if (activeClient && catalog[activeClient]) renderFurniture();
+}
+
+function startViewer() {
+  document.getElementById("catalogApp").hidden = true;
+  document.getElementById("viewerApp").hidden = false;
+  document.getElementById("clientName").textContent = `${selectedProduct.client.name.toUpperCase()} · GUÍA DE ARMADO 3D`;
+  document.getElementById("productName").textContent = selectedProduct.furniture.title;
+  document.getElementById("homeButton").addEventListener("click", () => location.href = location.pathname);
 
 const U = 0.01;
 const T = modelData.dimensions.thickness;
@@ -226,9 +284,8 @@ addTable(); addChair();
 const floor = new THREE.Mesh(new THREE.CircleGeometry(13,64), new THREE.MeshStandardMaterial({ color:0xd8ddd7, roughness:1 }));
 floor.rotation.x = -Math.PI/2; floor.position.y = -.015; floor.receiveShadow = true; scene.add(floor);
 
-const params = new URLSearchParams(location.search);
 const shortPiece = { t:"tapa", f:"faja", lm:"lateral-mesa", ls:"lateral-silla", a:"asiento", r:"respaldo", tr:"trava" };
-let selectedType = params.get("pieza") || shortPiece[params.get("p")] || "tapa";
+let selectedType = route.get("pieza") || shortPiece[route.get("p")] || "tapa";
 if (!pieces[selectedType]) selectedType = "tapa";
 let explodeAmount = 0;
 
@@ -256,7 +313,7 @@ function updateExplode(value) {
 
 document.getElementById("pieceSelect").addEventListener("change", event => {
   selectedType=event.target.value; updateSelection(true);
-  const url=new URL(location.href); url.searchParams.set("pieza",selectedType); history.replaceState({},"",url);
+  const url=new URL(location.href); url.searchParams.set("cliente", selectedProduct.clientSlug); url.searchParams.set("mueble", selectedProduct.furnitureSlug); url.searchParams.set("pieza",selectedType); url.searchParams.delete("p"); history.replaceState({},"",url);
 });
 const explode = document.getElementById("explode");
 explode.addEventListener("input", event => updateExplode(Number(event.target.value)/100));
@@ -283,3 +340,7 @@ function animate(){resize();controls.update();renderer.render(scene,camera);requ
 machiningObjects.forEach(object => object.visible = true);
 setFamily(pieces[selectedType].family); updateSelection(); updateExplode(0); animate();
 document.getElementById("loading").classList.add("ready");
+}
+
+if (shouldOpenViewer) startViewer();
+else showCatalog();

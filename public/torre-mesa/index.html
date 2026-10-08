@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142b35">
+  <meta name="description" content="Explorá Torre Mesa en 3D y colocala en tu espacio con realidad aumentada.">
+  <title>Torre Mesa · Ver en tu espacio</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="css/visor.css">
+  <script type="module" src="js/model-viewer.min.js"></script>
+  <script type="module" src="js/visor.js"></script>
+</head>
+<body>
+  <main class="producto">
+    <header><div class="marca"><img class="marca-logo" src="assets/logo.png" alt="Logo de la marca"><span>TORRE MESA</span></div></header>
+    <section class="escena" aria-label="Modelo tridimensional de Torre Mesa">
+      <model-viewer id="modelo" src="assets/torre-mesa.glb?v=2"
+        poster="assets/torre-mesa.png" alt="Torre Mesa de MDF con plataforma, escalón y barra superior"
+        ios-src="assets/torre-mesa.usdz?v=2"
+        ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed" ar-placement="floor"
+        camera-controls touch-action="pan-y" shadow-intensity="0.8" shadow-softness="0.8"
+        exposure="1.1" camera-orbit="35deg 75deg 2.1m" field-of-view="32deg"
+        min-camera-orbit="auto 10deg 1m" max-camera-orbit="auto 100deg 4m"
+        camera-target="0m 0.453m 0m" interaction-prompt="auto"
+        environment-image="neutral">
+        <button slot="ar-button" class="boton-ar" id="boton-ar" type="button">Ver en mi espacio</button>
+        <div slot="progress-bar" class="progreso" id="progreso" role="progressbar" aria-label="Carga del modelo" aria-valuemin="0" aria-valuemax="100"><span></span></div>
+      </model-viewer>
+      <div class="escena-controles"><span id="estado" role="status">Cargando modelo…</span><button id="restablecer" class="boton-secundario" type="button">Vista inicial</button></div>
+    </section>
+    <section class="informacion" aria-labelledby="titulo">
+      <div><h1 id="titulo">Torre Mesa</h1><p class="instruccion">Giralo para explorar sus detalles. Desde un celular compatible, colocalo en tu espacio a tamaño real.</p></div>
+      <dl class="medidas"><div><dt>Ancho</dt><dd>398 <span>mm</span></dd></div><div><dt>Alto</dt><dd>906 <span>mm</span></dd></div><div><dt>Profundidad</dt><dd>470 <span>mm</span></dd></div></dl>
+      <p class="nota">La apariencia del MDF es aproximada.</p>
+      <p id="ayuda-ar" class="ayuda">En el celular, tocá “Ver en mi espacio” y apuntá la cámara al piso.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "dimensiones_modelo_mm": [
+    467.6600296000002,
+    905.9715500000001,
+    474.5783100000001
+  ],
+  "dimensiones_originales_mm": [
+    470.01008000000024,
+    905.9715500000001,
+    474.5783100000001
+  ],
+  "origen_original_m": [
+    1.9800137500000001,
+    -0.018000000000000002,
+    0.7041385250000001
+  ],
+  "escala_obj_a_metros": 0.01,
+  "escala_ejes": [
+    0.995,
+    1.0,
+    1.0
+  ],
+  "geometria": "12 cuerpos conservados; ajuste X de 0,5 % para ancho nominal 398 mm. Salientes incluidas.",
+  "dimensions_confirmadas_mm": {
+    "ancho": 398,
+    "alto": 905.972,
+    "profundidad": 470
+  },
+  "cuerpos": 12,
+  "triangulos": 7472,
+  "material": "Color MDF aproximado; contornos negros de 1,1 mm de diámetro",
+  "segmentos_bordes": 3412,
+  "triangulos_bordes": 40944,
+  "fuente_sha256": "db6cad9c80df3986c3b7e4123cb96cd45a11559aad5cb59154190b476c79b751",
+  "validacion_celular": "Pendiente"
+}

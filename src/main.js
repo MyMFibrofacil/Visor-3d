@@ -243,12 +243,6 @@ function updateSelection(resetCamera=false) {
   const piece = pieces[selectedType];
   if (resetCamera) setFamily(piece.family); else { tableRoot.visible=piece.family==="table"; chairRoot.visible=piece.family==="chair"; }
   selectable.forEach(mesh => mesh.material = mesh.userData.partType === selectedType ? highlightMaterial : woodMaterial);
-  machiningObjects.forEach(mesh => {
-    const isSelected = mesh.userData.partType === selectedType;
-    mesh.material.depthTest = !isSelected;
-    mesh.renderOrder = isSelected ? 10 : 0;
-    mesh.material.needsUpdate = true;
-  });
   document.getElementById("pieceSelect").value = selectedType;
   document.title = `${piece.name} · Armado 3D Emi`;
 }

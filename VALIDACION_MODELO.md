@@ -40,3 +40,20 @@ Fuentes usadas: TCN de pantógrafo, DXF de las plantillas y los siete XML de Fle
 - Cada punto se muestra una sola vez, en la cara mecanizada indicada por el archivo de origen.
 - Se invirtió el eje longitudinal del respaldo y de la traba para que sus tres y dos puntos de unión, respectivamente, coincidan con los mecanizados de los laterales.
 - Verificación geométrica posterior al ajuste: desajuste máximo de 0,0043 mm para el respaldo y 0,0070 mm para la traba, comparando las posiciones reconstruidas con las coordenadas de los XML/DXF normalizadas en `model-data.json`.
+
+
+## Relevamiento de mecanizados Flex — 2026-10-08
+
+Se contrastó cada punto del visor con los XML de Flex de `MA0009040003 Mesa y Silla`.
+
+| Pieza | Archivo XML | Mecanizados representados |
+|---|---|---:|
+| Tapa | `MA000904000303180101.xml` | 14 verticales |
+| Faja | `MA000904000302180101.xml` | 12: 4 de cara, 4 de canto superior y 4 de extremos |
+| Lateral de mesa | `Plantilla Mesa.xml` | 5 de cara y 3 de canto por lateral |
+| Lateral de silla | `MA000904000304180101.xml` y `Plantilla Silla.xml` | 8 de frente y 6 de dorso por lateral |
+| Asiento | `MA000904000305180101.xml` | 3 horizontales por extremo |
+| Respaldo | `MA000904000306180101.xml` | 3 horizontales por extremo |
+| Traba | `MA000904000307180101.xml` | 2 horizontales por extremo de cada traba |
+
+Los tornillos de asiento, respaldo y traba se corrigieron a diámetro 6 mm, tal como indican sus XML. Las seis perforaciones del dorso del lateral de silla se añadieron con la cara indicada por `Back Vertical Hole`.

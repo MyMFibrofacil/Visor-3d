@@ -185,10 +185,11 @@ function addChair() {
     const side = addPart(chairRoot, "lateralSilla", "lateral-silla", [x,maxY/2,sideZ], [sign*110,0,0], [0,-Math.PI/2,0]);
     const faceZ = sign > 0 ? T/2+.7 : -T/2-.7;
     const outerFaceZ = -sign*(T/2+.7);
-    for (const group of Object.values(modelData.machining.chairSide).filter(Array.isArray)) {
+    const chairMachining = modelData.machining.chairSide;
+    for (const group of [chairMachining.seat, chairMachining.back, chairMachining.brace, chairMachining.backFace]) {
       for (const h of group) {
         const p = chairSourcePoint(h.z,h.sourceY);
-        const holeFace = h.d===5 ? outerFaceZ : faceZ;
+        const holeFace = h.face === "back" ? outerFaceZ : faceZ;
         faceHole(side,p.z-sideZ,p.y-maxY/2,holeFace,h.d,"z",markerFor(h));
       }
     }
@@ -198,23 +199,23 @@ function addChair() {
   const seatBaseSource = 117.15-47.285;
   const seatCenterZ = seatBaseSource+219/2-modelData.machining.chairSide.seatCenterZSource;
   const seat = addPart(chairRoot, "asiento", "asiento", [0,seatY,seatCenterZ], [0,105,0], [Math.PI/2,0,0]);
-  for (const endX of [-146.95,146.95]) for (const h of [{v:47.285,d:8,k:"dowel"},{v:94.57,d:5,k:"screw"},{v:141.855,d:8,k:"dowel"}]) {
+  for (const endX of [-146.95,146.95]) for (const h of [{v:47.285,d:8,k:"dowel"},{v:94.57,d:6,k:"screw"},{v:141.855,d:8,k:"dowel"}]) {
     const yy=h.v-109.5;
-    faceHole(seat,endX,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
+    faceHole(seat,endX + Math.sign(endX) * .7,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
   }
 
   const back = boardTransform({x:313.84,y:108.36},{x:301.89,y:193.39},42.932,185);
   const backPart = addPart(chairRoot, "respaldo", "respaldo", [0,back.y,back.z], [0,55,75], [back.angle,0,0]);
-  for (const endX of [-146.95,146.95]) for (const h of [{v:42.932,d:8,k:"dowel"},{v:85.863,d:5,k:"screw"},{v:128.794,d:8,k:"dowel"}]) {
+  for (const endX of [-146.95,146.95]) for (const h of [{v:42.932,d:8,k:"dowel"},{v:85.863,d:6,k:"screw"},{v:128.794,d:8,k:"dowel"}]) {
     const yy=h.v-92.5;
-    faceHole(backPart,endX,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
+    faceHole(backPart,endX + Math.sign(endX) * .7,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
   }
 
   const brace = boardTransform({x:323.74,y:460.21},{x:328.24,y:479.69},20.75,60);
   const bracePart = addPart(chairRoot, "trava", "trava", [0,brace.y,brace.z], [0,-70,75], [brace.angle,0,0]);
-  for (const endX of [-146.95,146.95]) for (const h of [{v:20.75,d:8,k:"dowel"},{v:40.75,d:5,k:"screw"}]) {
+  for (const endX of [-146.95,146.95]) for (const h of [{v:20.75,d:8,k:"dowel"},{v:40.75,d:6,k:"screw"}]) {
     const yy=h.v-30;
-    faceHole(bracePart,endX,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
+    faceHole(bracePart,endX + Math.sign(endX) * .7,yy,0,h.d,"x",h.k === "dowel" ? "dowel" : "hardware");
   }
 }
 

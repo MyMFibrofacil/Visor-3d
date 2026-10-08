@@ -24,7 +24,6 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: pnpm
       - name: Preparar pnpm
         run: corepack enable
       - name: Instalar dependencias

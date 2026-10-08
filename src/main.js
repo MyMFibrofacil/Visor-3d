@@ -127,7 +127,9 @@ function addHardwareGroup(parent, localPosition, localQuaternion = null) {
   if (localQuaternion) group.quaternion.copy(parent.quaternion).multiply(localQuaternion);
   else group.quaternion.copy(parent.quaternion);
   group.userData.base = group.position.clone();
-  group.userData.explode = new THREE.Vector3();
+  group.userData.owner = parent;
+  group.userData.type = "minifix";
+  group.userData.pull = new THREE.Vector3();
   root.add(group);
   hardwareObjects.push(group);
   return group;
@@ -158,7 +160,11 @@ function axialHardware(parent, start, direction, length, radius, material, inset
     group.add(head);
   }
   group.userData.base = group.position.clone();
-  group.userData.explode = dir.clone().multiplyScalar(-18);
+  group.userData.owner = parent;
+  group.userData.type = material === dowelMaterial ? "dowel" : material === screwMaterial ? "screw" : "minifix";
+  // Cada herraje sale del agujero de su propia placa, en vez de desplazarse
+  // desde el centro del modelo junto con todos los demás.
+  group.userData.pull = dir.clone().multiplyScalar(pointed ? -52 : material === dowelMaterial ? -46 : -36);
   parent.parent.add(group); hardwareObjects.push(group);
   return group;
 }
@@ -166,7 +172,7 @@ function axialHardware(parent, start, direction, length, radius, material, inset
 function minifixCam(parent, x, y, faceZ) {
   const sign = Math.sign(faceZ) || 1;
   const group = addHardwareGroup(parent,[x,y,faceZ-sign*6.3]);
-  group.userData.explode.set(0,0,sign*18).applyQuaternion(parent.quaternion);
+  group.userData.pull.set(0,0,sign*34).applyQuaternion(parent.quaternion);
   const cam = new THREE.Mesh(new THREE.CylinderGeometry(7.2,7.2,12,32),minifixMaterial);
   cam.rotation.x=Math.PI/2; group.add(cam);
   const slot = new THREE.Mesh(new THREE.BoxGeometry(7.2,.8,1),screwMaterial);
@@ -290,6 +296,7 @@ const shortPiece = { t:"tapa", f:"faja", lm:"lateral-mesa", ls:"lateral-silla", 
 let selectedType = params.get("pieza") || shortPiece[params.get("p")] || "tapa";
 if (!pieces[selectedType]) selectedType = "tapa";
 let explodeAmount = 0;
+let explodeAnimation = null;
 
 function setFamily(family) {
   tableRoot.visible = family === "table"; chairRoot.visible = family === "chair";
@@ -308,10 +315,48 @@ function updateSelection(resetCamera=false) {
 
 function updateExplode(value) {
   explodeAmount = value;
+  // Primero se separan las placas. Los herrajes aparecen en tres etapas para
+  // que se pueda leer con claridad qué entra en cada agujero.
+  const boardProgress = Math.min(value / .38, 1);
   for (const root of [tableRoot,chairRoot]) root.children.forEach(object => {
-    if (object.userData.base && object.userData.explode) object.position.copy(object.userData.base).addScaledVector(object.userData.explode,explodeAmount);
+    if (object.userData.base && object.userData.explode) object.position.copy(object.userData.base).addScaledVector(object.userData.explode,boardProgress);
   });
-  hardwareObjects.forEach(object => { object.visible = value > .02; });
+  const phases = { dowel:[.38,.57], minifix:[.57,.77], screw:[.77,.97] };
+  hardwareObjects.forEach(object => {
+    const [from,to] = phases[object.userData.type] || phases.minifix;
+    const progress = THREE.MathUtils.clamp((value-from)/(to-from),0,1);
+    const ownerExplode = object.userData.owner?.userData.explode || new THREE.Vector3();
+    object.position.copy(object.userData.base)
+      .addScaledVector(ownerExplode,boardProgress)
+      .addScaledVector(object.userData.pull,progress);
+    object.visible = progress > .02;
+  });
+  const active = value < .38 ? "boards" : value < .57 ? "dowel" : value < .77 ? "minifix" : "screw";
+  ["boards","dowel","minifix","screw"].forEach(step => document.getElementById(`step-${step}`).classList.toggle("active", step === active));
+  const hints = {
+    boards:"Primero separá las placas para ver los puntos de unión.",
+    dowel:"Ubicá los tarugos en sus agujeros antes de acercar la otra pieza.",
+    minifix:"Colocá los minifix y giralos para trabar las uniones.",
+    screw:"Por último colocá y ajustá los tornillos visibles."
+  };
+  document.getElementById("sequenceHint").textContent = hints[active];
+}
+
+function animateExplodeTo(target) {
+  if (explodeAnimation) cancelAnimationFrame(explodeAnimation);
+  const from = Number(explode.value) / 100;
+  const started = performance.now();
+  const duration = target > from ? 2700 : 850;
+  const tick = now => {
+    const elapsed = Math.min((now - started) / duration, 1);
+    const eased = elapsed < .5 ? 2 * elapsed * elapsed : 1 - Math.pow(-2 * elapsed + 2, 2) / 2;
+    const next = from + (target - from) * eased;
+    explode.value = Math.round(next * 100);
+    updateExplode(next);
+    if (elapsed < 1) explodeAnimation = requestAnimationFrame(tick);
+    else explodeAnimation = null;
+  };
+  explodeAnimation = requestAnimationFrame(tick);
 }
 
 document.getElementById("pieceSelect").addEventListener("change", event => {
@@ -319,9 +364,9 @@ document.getElementById("pieceSelect").addEventListener("change", event => {
   const url=new URL(location.href); url.searchParams.set("pieza",selectedType); history.replaceState({},"",url);
 });
 const explode = document.getElementById("explode");
-explode.addEventListener("input", event => updateExplode(Number(event.target.value)/100));
+explode.addEventListener("input", event => { if (explodeAnimation) cancelAnimationFrame(explodeAnimation); explodeAnimation=null; updateExplode(Number(event.target.value)/100); });
 document.getElementById("explodeButton").addEventListener("click", () => {
-  const next=Number(explode.value)>50?0:100; explode.value=next; updateExplode(next/100);
+  const next=Number(explode.value)>50?0:100; animateExplodeTo(next/100);
   document.getElementById("explodeButton").textContent=next?"Volver a ver armado":"Ver despiece completo";
 });
 

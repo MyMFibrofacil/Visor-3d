@@ -38,6 +38,13 @@
         <input id="explode" type="range" min="0" max="100" value="0" aria-label="Nivel de despiece">
         <span>Despiece</span>
       </div>
+      <div class="assembly-sequence" aria-label="Secuencia del despiece">
+        <span id="step-boards" class="active">1. Placas</span>
+        <span id="step-dowel">2. Tarugos</span>
+        <span id="step-minifix">3. Minifix</span>
+        <span id="step-screw">4. Tornillos</span>
+      </div>
+      <p id="sequenceHint" class="sequence-hint">Primero separá las placas para ver los puntos de unión.</p>
       <div class="legend"><span><i class="dowel-dot"></i>Tarugo Ø8×30</span><span><i class="hardware-dot"></i>Minifix estándar</span><span><i class="screw-dot"></i>Tornillo negro</span></div>
       <button id="explodeButton" type="button">Ver despiece completo</button>
     </section>

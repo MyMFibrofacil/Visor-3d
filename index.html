@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#183126">
+  <title>Armado 3D - Mesa y Sillas Emi</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">GUÍA DE ARMADO 3D</p>
+        <h1>Mesa y Sillas Emi</h1>
+      </div>
+      <div class="header-badges"><span id="sceneName" class="scene-name">Mesa</span><span class="gesture">Arrastrá para girar</span></div>
+    </header>
+
+    <section class="stage" aria-label="Modelo 3D del producto">
+      <canvas id="viewer"></canvas>
+      <div class="hint">↔ Girar · Pellizcar para acercar</div>
+      <div id="loading" class="loading">Preparando modelo…</div>
+    </section>
+
+    <section class="controls">
+      <label for="pieceSelect">Mostrar pieza</label>
+      <select id="pieceSelect">
+        <option value="tapa">Tapa de mesa</option>
+        <option value="faja">Fajas de mesa</option>
+        <option value="lateral-mesa">Laterales de mesa</option>
+        <option value="lateral-silla">Laterales de silla</option>
+        <option value="asiento">Asientos</option>
+        <option value="respaldo">Respaldos</option>
+        <option value="trava">Travas de asiento</option>
+      </select>
+      <div class="explode-row">
+        <span>Armado</span>
+        <input id="explode" type="range" min="0" max="100" value="0" aria-label="Nivel de despiece">
+        <span>Despiece</span>
+      </div>
+      <div class="legend"><span><i class="dowel-dot"></i>Tarugo Ø8×30</span><span><i class="hardware-dot"></i>Minifix estándar</span><span><i class="screw-dot"></i>Tornillo negro</span></div>
+      <button id="explodeButton" type="button">Ver despiece completo</button>
+    </section>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

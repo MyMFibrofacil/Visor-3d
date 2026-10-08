@@ -1,0 +1,60 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #183126;
+  background: #eef1eb;
+  font-synthesis: none;
+  --green: #183126;
+  --orange: #e3262e;
+  --paper: #fffdf8;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: radial-gradient(circle at 50% 0, #ffffff 0, #eef1eb 50%, #e7e9e2 100%); }
+.app-shell { width: min(100%, 940px); min-height: 100vh; margin: 0 auto; padding: 18px 14px 34px; }
+.topbar { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.eyebrow { margin: 0 0 4px; color: #5b786b; font-size: 11px; font-weight: 900; letter-spacing: .14em; }
+h1 { margin: 0; font-size: clamp(24px, 5vw, 38px); line-height: 1; }
+.gesture { border-radius: 999px; padding: 8px 11px; color: white; background: var(--green); font-size: 12px; font-weight: 800; white-space: nowrap; }
+.header-badges { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.scene-name { border:1px solid #abc0b4; border-radius:999px; padding:7px 10px; background:#fff; font-size:12px; font-weight:900; white-space:nowrap; }
+
+.stage { position: relative; height: min(62vh, 620px); min-height: 390px; overflow: hidden; border: 1px solid #d5ddd7; border-radius: 22px; background: linear-gradient(#f9fbf8, #e4e9e4); box-shadow: 0 18px 45px rgba(24,49,38,.13); }
+#viewer { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+#viewer:active { cursor: grabbing; }
+.hint { position: absolute; left: 50%; bottom: 13px; transform: translateX(-50%); border-radius: 999px; padding: 7px 11px; color: #415248; background: rgba(255,255,255,.9); box-shadow: 0 3px 12px rgba(0,0,0,.1); font-size: 12px; font-weight: 700; white-space: nowrap; pointer-events: none; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; background: #f3f5f1; font-weight: 800; transition: opacity .3s; pointer-events: none; }
+.loading.ready { opacity: 0; }
+
+.controls, .piece-card { margin-top: 12px; border: 1px solid #dae0dc; border-radius: 18px; padding: 15px; background: rgba(255,253,248,.96); box-shadow: 0 8px 25px rgba(24,49,38,.07); }
+.controls label { display: block; margin-bottom: 6px; color: #627169; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+select { width: 100%; border: 1px solid #b8c5bd; border-radius: 11px; padding: 11px 12px; color: var(--green); background: white; font: inherit; font-weight: 800; }
+.explode-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; margin-top: 14px; font-size: 12px; font-weight: 800; }
+input[type="range"] { width: 100%; accent-color: var(--orange); }
+button { width: 100%; margin-top: 10px; border: 0; border-radius: 11px; padding: 11px 14px; color: white; background: var(--green); font: inherit; font-weight: 800; cursor: pointer; }
+.legend { display:flex; gap:14px; margin-top:8px; color:#617168; font-size:11px; font-weight:800; }
+.legend span { display:flex; align-items:center; gap:5px; }
+.legend i { width:9px; height:9px; border-radius:50%; display:inline-block; }
+.dowel-dot { background:#c99a62; }
+.hardware-dot { background:#9da7aa; }
+.screw-dot { background:#202522; }
+
+.piece-title { display: flex; align-items: center; gap: 11px; }
+.swatch { flex: 0 0 auto; width: 17px; height: 36px; border-radius: 999px; background: var(--orange); box-shadow: 0 0 0 4px rgba(255,100,47,.16); }
+.piece-title p { margin: 0 0 2px; color: #738077; font-size: 10px; font-weight: 900; letter-spacing: .1em; }
+h2 { margin: 0; font-size: 22px; }
+#pieceDescription { margin: 13px 0; color: #425149; line-height: 1.45; }
+.facts { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; }
+.facts div { border-radius: 11px; padding: 10px; background: #f0f3ef; }
+.facts span { display: block; margin-bottom: 3px; color: #718078; font-size: 11px; }
+.facts strong { font-size: 13px; }
+
+@media (min-width: 760px) {
+  .app-shell { padding-top: 26px; }
+  .stage { min-height: 540px; }
+  .controls { display: grid; grid-template-columns: 1fr 1.1fr; column-gap: 18px; align-items: end; }
+  .controls label { grid-column: 1; }
+  .controls select { grid-column: 1; }
+  .explode-row { grid-column: 2; grid-row: 1 / span 2; margin: 0; align-self: center; }
+  .legend { grid-column:2; align-self:center; margin-top:12px; }
+  .controls button { grid-column: 1 / -1; }
+}

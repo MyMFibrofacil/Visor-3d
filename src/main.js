@@ -139,11 +139,11 @@ function addTable() {
     }
     for (const h of modelData.machining.rail.topEdge) {
       const px=h.x-341.95;
-      faceHole(rail,px,47.5,0,h.d,"y",markerFor(h));
+      faceHole(rail,px,47.5 + .7,0,h.d,"y",markerFor(h));
     }
     for (const endX of [-341.95,341.95]) for (const h of modelData.machining.rail.ends) {
       const py=47.5-h.v;
-      faceHole(rail,endX,py,0,h.d,"x",markerFor(h));
+      faceHole(rail,endX + Math.sign(endX) * .7,py,0,h.d,"x",markerFor(h));
     }
   }
 
@@ -157,7 +157,7 @@ function addTable() {
     }
     for (const h of modelData.machining.tableSide.topEdge) {
       const px=h.z-250;
-      faceHole(side,px,241,0,h.d,"y",markerFor(h));
+      faceHole(side,px,241 + .7,0,h.d,"y",markerFor(h));
     }
   }
 }

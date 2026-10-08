@@ -164,7 +164,11 @@ function axialHardware(parent, start, direction, length, radius, material, inset
   group.userData.type = material === dowelMaterial ? "dowel" : material === screwMaterial ? "screw" : "minifix";
   // Cada herraje sale del agujero de su propia placa, en vez de desplazarse
   // desde el centro del modelo junto con todos los demás.
-  group.userData.pull = dir.clone().multiplyScalar(pointed ? -52 : material === dowelMaterial ? -46 : -36);
+  // El tarugo se retira hacia el lado que sobresale de su agujero. Los demás
+  // herrajes conservan la dirección inversa porque se representan desde su
+  // cabeza o su alojamiento.
+  const pullDistance = pointed ? -52 : material === dowelMaterial ? 46 : -36;
+  group.userData.pull = dir.clone().multiplyScalar(pullDistance);
   parent.parent.add(group); hardwareObjects.push(group);
   return group;
 }

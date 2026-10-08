@@ -83,8 +83,8 @@ function startViewer() {
   function addHole(group, x, y, z, axis = 'x') {
     const marker = new THREE.Mesh(new THREE.CylinderGeometry(3.8, 3.8, 2.2, 18), holeMaterial);
     marker.position.set(x, y, z);
+    if (axis === 'x') marker.rotation.z = Math.PI / 2;
     if (axis === 'z') marker.rotation.x = Math.PI / 2;
-    if (axis === 'y') marker.rotation.z = Math.PI / 2;
     marker.visible = false; group.add(marker); holes.push(marker);
   }
 
@@ -131,15 +131,19 @@ function startViewer() {
   const baseY = 45;
   const base = addPart('base', new THREE.BoxGeometry(INNER_W, T, 269), [0, baseY, 0], [0, -75, 0]);
   [-187.95, 0, 187.95].forEach(x => addHole(base, x, T/2, 0, 'y'));
+  [-187.95, 0, 187.95].forEach(x => { addHole(base, x, 0, -269/2, 'z'); addHole(base, x, 0, 269/2, 'z'); });
+  [-92.5, 92.5].forEach(z => { addHole(base, -INNER_W/2, 0, z, 'x'); addHole(base, INNER_W/2, 0, z, 'x'); });
 
   const backZ = 269/2 - T/2;
   const back = addPart('separador', backGeometry(), [0, 0, backZ], [0, 0, 90]);
-  [[-187.95,64],[-187.95,271],[187.95,64],[187.95,271],[0,0]].forEach(([x,y]) => addHole(back, x, y, -T/2, 'z'));
+  [64,167.5,271].forEach(y => { addHole(back, -INNER_W/2, y, 0, 'x'); addHole(back, INNER_W/2, y, 0, 'x'); });
+  [-187.95,0,187.95].forEach(x => addHole(back, x, 0, 0, 'y'));
 
   const boardY = baseY + T/2 + 53;
   const front = addPart('frente', new THREE.BoxGeometry(INNER_W, 106, T), [0, boardY, -269/2 + T/2], [0, 0, -95]);
   const middle = addPart('frente', new THREE.BoxGeometry(INNER_W, 106, T), [0, boardY, 0], [0, 0, -45]);
   [-187.95,0,187.95].forEach(x => { addHole(front,x,44,-T/2,'z'); addHole(middle,x,-44,-T/2,'z'); });
+  for (const board of [front,middle]) [-25,25].forEach(y => { addHole(board,-INNER_W/2,y,0,'x'); addHole(board,INNER_W/2,y,0,'x'); });
 
   const floor = new THREE.Mesh(new THREE.CircleGeometry(8, 64), new THREE.MeshStandardMaterial({ color: 0xd7ddd6, roughness: 1 }));
   floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);

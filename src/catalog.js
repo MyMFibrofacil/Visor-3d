@@ -22,3 +22,4 @@ export function getProduct(clientSlug, furnitureSlug) {
   const furniture = client?.furniture[furnitureSlug];
   return client && furniture ? { clientSlug, furnitureSlug, client, furniture } : null;
 }
+

@@ -32,6 +32,10 @@ Los QR anteriores de Emi con el formato corto `?p=ls` continúan siendo compatib
 
 La cama abre sus piezas con `lateral-hueco`, `lateral-completo`, `cabecera`, `parrilla` y `tirante`.
 
+El juguetero abre sus piezas con `lateral`, `fondo`, `tapa`, `piso`, `medio` y `frente`.
+La guía pública es:
+`https://mymfibrofacil.github.io/Visor-3d/?cliente=picky-kids&mueble=juguetero-bajo-x2-emi`
+
 ## Desarrollo y publicación
 
 Cada cambio enviado a `main` compila y publica GitHub Pages.

@@ -53,7 +53,7 @@ function startViewer(){
   const backProfile=modelData.profiles.fondo,back=part("fondo","fondo",[0,assembly.backYOffset+backProfile.height/2,assembly.backDepth],[0,0,0],[0,25,-115],false,false,true);profileMarkers(back,"fondo",T/2+.8,false,false,true);
   const floorProfile=modelData.profiles.piso,floorPart=part("piso","piso",[0,assembly.floorHeight,assembly.floorDepthStart+floorProfile.height/2],[-Math.PI/2,0,0],[0,-110,-15]);profileMarkers(floorPart,"piso",T/2+.8);
   const topProfile=modelData.profiles.tapa,top=part("tapa","tapa",[0,assembly.topHeight,assembly.topDepthOffset+topProfile.height/2],[Math.PI/2,0,0],[0,125,-20],false,false,true);profileMarkers(top,"tapa",T/2+.8,false,false,true);
-  const middleProfile=modelData.profiles.medio,middle=part("medio","medio",[0,assembly.middleYOffset+middleProfile.width/2,assembly.middleDepthOffset+middleProfile.height/2],[0,-Math.PI/2,0],[0,20,80],true,true,true);profileMarkers(middle,"medio",T/2+.8,true,true,true);
+  const middleProfile=modelData.profiles.medio,middle=part("medio","medio",[0,assembly.floorHeight+middleProfile.width/2,assembly.middleDepthOffset+middleProfile.height/2],[0,-Math.PI/2,0],[0,20,80],true,true,true);profileMarkers(middle,"medio",T/2+.8,true,true,true);
 
   const angle=THREE.MathUtils.degToRad(assembly.frontAngleDeg),opening=(assembly.innerWidth-T)/2,frontX=(T+opening)/2;
   for(const sign of [-1,1]){const front=part("frente","frente",[sign*frontX,assembly.frontCenterY,assembly.frontCenterZ],[angle,0,0],[sign*85,20,125]);for(const hole of modelData.profiles.frente.holes)marker(front,hole.x-180.5,hole.y-80,0,hole.d,"x");}

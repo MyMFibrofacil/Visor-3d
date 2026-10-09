@@ -88,7 +88,7 @@ function startViewer() {
   function refresh(){for(const item of parts)item.mesh.material=item.type===active?selected:wood;for(const m of markers)m.visible=amount>.03&&(m.userData.partType===active||amount>.7);}
   function explode(v){amount=v;for(const {group} of parts)group.position.copy(group.userData.base).addScaledVector(group.userData.explode,v);refresh();}
   select.onchange=()=>{active=select.value;refresh();history.replaceState({},"",`?cliente=picky-kids&mueble=cama-montessori-emi&pieza=${encodeURIComponent(active)}`);};
-  const slider=document.getElementById("explode");slider.value="0";slider.oninput=()=>explode(Number(slider.value)/100);document.getElementById("explodeButton").onclick=()=>{slider.value=slider.value==="100"?"0":"100";explode(Number(slider.value)/100);};
+  const slider=document.getElementById("explode"),explodeButton=document.getElementById("explodeButton");slider.value="0";slider.oninput=()=>{const value=Number(slider.value);explode(value/100);explodeButton.textContent=value===100?"Ver armado completo":"Ver despiece completo";};explodeButton.onclick=()=>{slider.value=slider.value==="100"?"0":"100";explode(Number(slider.value)/100);explodeButton.textContent=slider.value==="100"?"Ver armado completo":"Ver despiece completo";};
   camera.position.set(20,12,24);controls.target.set(0,2.1,0);controls.minDistance=8;controls.maxDistance=70;refresh();
   function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);framing.resize();}new ResizeObserver(resize).observe(canvas);resize();
   function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);}animate();document.getElementById("loading").style.opacity="0";

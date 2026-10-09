@@ -38,14 +38,15 @@ body { margin: 0; min-width: 320px; background: radial-gradient(circle at 50% 0,
 .hint { position: absolute; left: 50%; bottom: 13px; transform: translateX(-50%); border-radius: 999px; padding: 7px 11px; color: #415248; background: rgba(255,255,255,.9); box-shadow: 0 3px 12px rgba(0,0,0,.1); font-size: 12px; font-weight: 700; white-space: nowrap; pointer-events: none; }
 .loading { position: absolute; inset: 0; display: grid; place-items: center; background: #f3f5f1; font-weight: 800; transition: opacity .3s; pointer-events: none; }
 .loading.ready { opacity: 0; }
-.controls { margin-top: 12px; border: 1px solid #dae0dc; border-radius: 18px; padding: 15px; background: rgba(255,253,248,.96); box-shadow: 0 8px 25px rgba(24,49,38,.07); }
+.controls { display: grid; gap: 15px; margin-top: 12px; border: 1px solid #dae0dc; border-radius: 18px; padding: 15px; background: rgba(255,253,248,.96); box-shadow: 0 8px 25px rgba(24,49,38,.07); }
+.assembly-controls { padding-bottom: 14px; border-bottom: 1px solid #dce2de; }
 .controls label { display: block; margin-bottom: 6px; color: #627169; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
 select { width: 100%; border: 1px solid #b8c5bd; border-radius: 11px; padding: 11px 12px; color: var(--green); background: white; font: inherit; font-weight: 800; }
-.explode-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; margin-top: 14px; font-size: 12px; font-weight: 800; }
+.explode-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; }
 input[type="range"] { width: 100%; accent-color: var(--orange); }
 button { width: 100%; margin-top: 10px; border: 0; border-radius: 11px; padding: 11px 14px; color: white; background: var(--green); font: inherit; font-weight: 800; cursor: pointer; }
 .legend { display:flex; gap:14px; margin-top:8px; color:#617168; font-size:11px; font-weight:800; }
 .legend span { display:flex; align-items:center; gap:5px; }
 .legend i { width:9px; height:9px; border-radius:50%; display:inline-block; }
 .dowel-dot { background:#36a5cf; }.hardware-dot { background:#26322e; }
-@media (min-width: 760px) { .catalog-shell, .app-shell { padding-top: 26px; } .stage { min-height: 540px; } .controls { display: grid; grid-template-columns: 1fr 1.1fr; column-gap: 18px; align-items: end; } .controls label, .controls select { grid-column: 1; } .explode-row { grid-column: 2; grid-row: 1 / span 2; margin: 0; align-self: center; } .legend { grid-column:2; align-self:center; margin-top:12px; } .controls button { grid-column: 1 / -1; } }
+@media (min-width: 760px) { .catalog-shell, .app-shell { padding-top: 26px; } .stage { min-height: 540px; } .assembly-controls { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 18px; align-items: center; } .assembly-controls .explode-row, .assembly-controls .legend { grid-column: 1; } .assembly-controls button { grid-column: 2; grid-row: 1 / span 2; width: auto; min-width: 210px; margin: 0; } }

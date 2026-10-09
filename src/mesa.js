@@ -325,10 +325,11 @@ document.getElementById("pieceSelect").addEventListener("change", event => {
   const url=new URL(location.href); url.searchParams.set("cliente", selectedProduct.clientSlug); url.searchParams.set("mueble", selectedProduct.furnitureSlug); url.searchParams.set("pieza",selectedType); url.searchParams.delete("p"); history.replaceState({},"",url);
 });
 const explode = document.getElementById("explode");
-explode.addEventListener("input", event => updateExplode(Number(event.target.value)/100));
+const explodeButton = document.getElementById("explodeButton");
+explode.addEventListener("input", event => { const value=Number(event.target.value); updateExplode(value/100); explodeButton.textContent=value===100?"Ver armado completo":"Ver despiece completo"; });
 document.getElementById("explodeButton").addEventListener("click", () => {
   const next=Number(explode.value)>50?0:100; explode.value=next; updateExplode(next/100);
-  document.getElementById("explodeButton").textContent=next?"Volver a ver armado":"Ver despiece completo";
+  explodeButton.textContent=next?"Ver armado completo":"Ver despiece completo";
 });
 
 const raycaster = new THREE.Raycaster(); const pointer = new THREE.Vector2(); let downPoint=null;

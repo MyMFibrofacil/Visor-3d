@@ -126,8 +126,9 @@ function startViewer() {
   function refresh() { meshes.forEach(mesh => { mesh.material = mesh.userData.name === current ? selected : wood; }); select.value = current; holes.forEach(hole => { hole.visible = amount > .03; }); }
   function explode(value) { amount = value; Object.values(groups).flat().forEach(group => group.position.copy(group.userData.base).addScaledVector(group.userData.explode, value)); holes.forEach(hole => { hole.visible = value > .03; }); }
   select.onchange = event => { current = event.target.value; refresh(); const url = new URL(location.href); url.searchParams.set('pieza', current); history.replaceState({}, '', url); };
-  document.getElementById('explode').oninput = event => explode(event.target.value/100);
-  document.getElementById('explodeButton').onclick = () => { const next = amount > .5 ? 0 : 1; document.getElementById('explode').value = next*100; explode(next); document.getElementById('explodeButton').textContent = next ? 'Volver a ver armado' : 'Ver despiece completo'; };
+  const explodeSlider = document.getElementById('explode'), explodeButton = document.getElementById('explodeButton');
+  explodeSlider.oninput = event => { const value=Number(event.target.value); explode(value/100); explodeButton.textContent=value===100?'Ver armado completo':'Ver despiece completo'; };
+  explodeButton.onclick = () => { const next = amount > .5 ? 0 : 1; explodeSlider.value = next*100; explode(next); explodeButton.textContent = next ? 'Ver armado completo' : 'Ver despiece completo'; };
   const raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2();
   canvas.onclick = event => { const rect = canvas.getBoundingClientRect(); mouse.set((event.clientX-rect.left)/rect.width*2-1, -(event.clientY-rect.top)/rect.height*2+1); raycaster.setFromCamera(mouse,camera); const hit=raycaster.intersectObjects(meshes)[0]; if(hit){current=hit.object.userData.name;refresh();} };
   function loop(){const width=canvas.clientWidth,height=canvas.clientHeight;if(canvas.width!==Math.round(width*renderer.getPixelRatio())||canvas.height!==Math.round(height*renderer.getPixelRatio())){renderer.setSize(width,height,false);framing.resize();}controls.update();renderer.render(scene,camera);requestAnimationFrame(loop);}

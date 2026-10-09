@@ -15,7 +15,9 @@ Actualmente está cargado:
 Picky Kids
 ├─ Mesa y Sillas Emi
 ├─ Librero Emi
-└─ Cama Montessori Emi
+├─ Cama Montessori Emi
+├─ Juguetero Bajo x2 Emi
+└─ Baúl Emi
 ```
 
 Los datos del catálogo viven en `src/catalog.js`. Al incorporar un cliente o modelo, agregar su entrada allí y los archivos de modelo correspondientes.
@@ -35,6 +37,9 @@ La cama abre sus piezas con `lateral-hueco`, `lateral-completo`, `cabecera`, `pa
 El juguetero abre sus piezas con `lateral`, `fondo`, `tapa`, `piso`, `medio` y `frente`.
 La guía pública es:
 `https://mymfibrofacil.github.io/Visor-3d/?cliente=picky-kids&mueble=juguetero-bajo-x2-emi`
+
+El baúl abre `tapa`, `frente`, `fondo`, `lateral` y `base`:
+`https://mymfibrofacil.github.io/Visor-3d/?cliente=picky-kids&mueble=baul-emi`
 
 ## Desarrollo y publicación
 

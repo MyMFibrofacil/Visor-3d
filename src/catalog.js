@@ -5,7 +5,8 @@ export const catalog = {
     description: "Muebles infantiles a medida",
     furniture: {
       "mesa-y-sillas-emi": { name: "Mesa y Sillas Emi", description: "Mesa infantil y dos sillas", status: "Disponible", title: "Mesa y Sillas Emi" },
-      "librero-emi": { name: "Librero Emi", description: "Librero infantil con manija", status: "Borrador", title: "Librero Emi" }
+      "librero-emi": { name: "Librero Emi", description: "Librero infantil con manija", status: "Borrador", title: "Librero Emi" },
+      "cama-montessori-emi": { name: "Cama Montessori Emi", description: "Cama infantil con acceso bajo y barandas", status: "Disponible", title: "Cama Montessori Emi" }
     }
   }
 };

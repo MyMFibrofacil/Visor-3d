@@ -13,7 +13,9 @@ Actualmente está cargado:
 
 ```text
 Picky Kids
-└─ Mesa y Sillas Emi
+├─ Mesa y Sillas Emi
+├─ Librero Emi
+└─ Cama Montessori Emi
 ```
 
 Los datos del catálogo viven en `src/catalog.js`. Al incorporar un cliente o modelo, agregar su entrada allí y los archivos de modelo correspondientes.
@@ -27,6 +29,8 @@ El formato nuevo abre directamente la pieza:
 ```
 
 Los QR anteriores de Emi con el formato corto `?p=ls` continúan siendo compatibles.
+
+La cama abre sus piezas con `lateral-hueco`, `lateral-completo`, `cabecera`, `parrilla` y `tirante`.
 
 ## Desarrollo y publicación
 

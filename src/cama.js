@@ -70,10 +70,10 @@ function startViewer() {
 
   const sideZ=(modelData.dimensions.innerWidth+T)/2;
   const gap=part("lateral-hueco","lateralHueco",[0,220,sideZ],[0,0,0],[0,0,190],true);
-  const full=part("lateral-completo","lateralCompleto",[0,220,-sideZ],[0,0,0],[0,0,-190]);
+  const full=part("lateral-completo","lateralCompleto",[0,220,-sideZ],[0,0,0],[0,0,-190],true);
   for(const [side,face] of [[gap,-T/2-.8],[full,T/2+.8]]) for(const h of modelData.machining.lateral) mark(side,h.x-1012.5,h.y-220,face,h.d,"z",h.kind);
 
-  for(const x of [-973.5,973.5]){const sign=Math.sign(x),end=part("cabecera","cabecera",[x,220,0],[0,Math.PI/2,0],[sign*170,0,0]);
+  for(const x of [-973.5,973.5]){const sign=Math.sign(x),end=part("cabecera","cabecera",[x,220,0],[0,Math.PI/2,0],[sign*170,0,0],true);
     for(const localX of [-419,419])for(const h of modelData.machining.cabeceraEnds)mark(end,localX+Math.sign(localX)*.8,h.y-220,0,h.d,"x",h.kind);}
 
   for(const z of [-398.25,398.25]){const sign=Math.sign(z),runner=part("tirante","tirante",[0,75,z],[0,0,0],[0,-65,sign*95]);

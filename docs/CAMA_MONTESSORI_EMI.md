@@ -17,7 +17,7 @@
 | Parrilla | 10 | 815 × 100 × 18 mm |
 | Tirante | 2 | 1900 × 50 × 18 mm |
 
-El lateral con hueco se orienta con la abertura hacia arriba y el zócalo continuo abajo. El perfil se giró dentro de su geometría sin girar las coordenadas de los mecanizados Flex.
+Los cuatro cerramientos se orientan con el zócalo continuo abajo. En el lateral con hueco, la abertura queda hacia arriba. Los perfiles se giraron dentro de su geometría sin girar las coordenadas de los mecanizados Flex.
 
 Los cuatro mecanizados de cada parrilla se muestran sobre la cara inferior, orientados hacia los tirantes que la reciben.
 

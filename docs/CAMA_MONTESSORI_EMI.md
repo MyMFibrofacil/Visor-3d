@@ -19,6 +19,8 @@
 
 El lateral con hueco se orienta con la abertura hacia arriba y el zócalo continuo abajo. El perfil se giró dentro de su geometría sin girar las coordenadas de los mecanizados Flex.
 
+Los cuatro mecanizados de cada parrilla se muestran sobre la cara inferior, orientados hacia los tirantes que la reciben.
+
 ## Reconstrucción
 
 `scripts/reconstruir_cama.py` extrae los perfiles cerrados del DXF, identifica los calados de 245 × 55 mm y guarda el resultado en `src/cama-data.json`. `src/cama.js` arma la escena con las dimensiones nominales y muestra puntos de mecanizado al avanzar el despiece.

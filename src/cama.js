@@ -79,7 +79,7 @@ function startViewer() {
   for(const z of [-398.25,398.25]){const sign=Math.sign(z),runner=part("tirante","tirante",[0,75,z],[0,0,0],[0,-65,sign*95]);
     for(const h of modelData.machining.runnerTop)mark(runner,h.x-960,25+.8,0,h.d,"y",h.kind);}
   for(let i=0;i<10;i++){const x=-910+i*202.22,slat=boxPart("parrilla",[100,T,815],[x,109.25,0],[0,100+(i%2)*20,0]);
-    for(const dx of [-25,25])for(const z of [-398.25,398.25])mark(slat,dx,T/2+.8,z,8,"y","tarugo");}
+    for(const dx of [-25,25])for(const z of [-398.25,398.25])mark(slat,dx,-T/2-.8,z,8,"y","tarugo");}
 
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,18),new THREE.MeshStandardMaterial({color:0xdfe5df,roughness:1}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
   const aliases={lh:"lateral-hueco",lc:"lateral-completo",c:"cabecera",p:"parrilla",t:"tirante"};

@@ -146,9 +146,12 @@ function profileGeometry(points, depth = T, bevel = 1.15) {
   return geo;
 }
 
-function addPart(root, outlineKey, type, position, explode, rotation = [0,0,0], scale = [1,1,1]) {
+function addPart(root, outlineKey, type, position, explode, rotation = [0,0,0], scale = [1,1,1], flipProfile = false) {
   const group = new THREE.Group();
-  const geometry = profileGeometry(modelData.outlines[outlineKey]);
+  const outline = flipProfile
+    ? modelData.outlines[outlineKey].map(([x,y]) => [-x,-y])
+    : modelData.outlines[outlineKey];
+  const geometry = profileGeometry(outline);
   const mesh = new THREE.Mesh(geometry, woodMaterial);
   mesh.castShadow = true; mesh.receiveShadow = true;
   mesh.userData.partType = type; mesh.userData.parentPart = group;
@@ -187,7 +190,10 @@ function addTable() {
 
   for (const z of [-171,171]) {
     const sign = Math.sign(z);
-    const rail = addPart(tableRoot, "faja", "faja", [0,434.5,z], [0,0,sign*145]);
+    // El contorno DXF canonico llega invertido respecto de su posicion de
+    // armado. Giramos solo el perfil 180 grados; los puntos XML mantienen
+    // sus coordenadas de ensamble.
+    const rail = addPart(tableRoot, "faja", "faja", [0,434.5,z], [0,0,sign*145], [0,0,0], [1,1,1], true);
     // Las caras con los mecanizados de las fajas miran al centro de la mesa:
     // la faja delantera usa su cara posterior y la trasera su cara anterior.
     const faceZ = -sign * (T/2+.7);
@@ -207,7 +213,9 @@ function addTable() {
 
   for (const x of [-351,351]) {
     const sign = Math.sign(x);
-    const side = addPart(tableRoot, "lateralMesa", "lateral-mesa", [x,241,0], [sign*145,0,0], [0,-Math.PI/2,0]);
+    // Igual que las fajas, el lateral necesita media vuelta dentro de su
+    // plano para que las patas queden abajo y los encuentros arriba.
+    const side = addPart(tableRoot, "lateralMesa", "lateral-mesa", [x,241,0], [sign*145,0,0], [0,-Math.PI/2,0], [1,1,1], true);
     const faceZ = sign > 0 ? T/2+.7 : -T/2-.7;
     for (const h of modelData.machining.tableSide.face) {
       const px=h.z-250, py=h.y-241;

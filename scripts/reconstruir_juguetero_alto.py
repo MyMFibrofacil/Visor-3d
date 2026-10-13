@@ -104,10 +104,12 @@ data = {
         "innerWidth": 414.0, "height": 1180.0, "depth": 466.336,
         "backBottom": 29.75, "backDepth": 38.75,
         "shelfDepthStart": 48.0, "shelfHeights": [39.0, 515.0, 833.0, 1151.0],
-        # Los tres puntos de unión fijan la pendiente del frente. El perfil
-        # DXF se invierte verticalmente en el visor para dejar la ranura arriba.
-        "frontBottomY": 53.4, "frontBottomZ": 392.15,
-        "frontAngleDeg": -33.87,
+        # Correspondencia directa con el lateral:
+        # 48.815 -> (93.940, 310.552), 97.631 -> (134.476, 337.751)
+        # y 146.446 -> (175.012, 364.950). El DXF se invierte sólo para
+        # mostrar la ranura arriba; los mecanizados conservan estas posiciones.
+        "frontBottomY": 53.4, "frontBottomZ": 283.35,
+        "frontAngleDeg": 33.87,
     },
     "sources": [str(DXF), *[str(path) for path in sorted(FLEX.glob("*.xml"))]],
 }

@@ -44,15 +44,15 @@ function startViewer() {
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
   const scene=new THREE.Scene(); scene.fog=new THREE.Fog(0xe9eee9,125,190);
-  const camera=new THREE.PerspectiveCamera(31,1,.05,120), controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=.07; controls.maxPolarAngle=Math.PI*.55;
+  const camera=new THREE.PerspectiveCamera(31,1,.05,120), controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=.07; controls.maxPolarAngle=Math.PI*.85;
   const framing=responsiveCamera(camera,controls,canvas); scene.add(new THREE.HemisphereLight(0xffffff,0x6b756f,2.2));
   const light=new THREE.DirectionalLight(0xffffff,3.3); light.position.set(7,11,9); light.castShadow=true; light.shadow.mapSize.set(2048,2048); scene.add(light);
 
   const wood=new THREE.MeshStandardMaterial({color:0xd5a06e,roughness:.72});
   const selected=new THREE.MeshStandardMaterial({color:0xe3262e,roughness:.42,emissive:0x5a0000,emissiveIntensity:.22});
   const edgeMat=new THREE.LineBasicMaterial({color:0x5a321d,transparent:true,opacity:.5});
-  const dowelMat=new THREE.MeshStandardMaterial({color:0x36a5cf,roughness:.45,emissive:0x063848,emissiveIntensity:.2});
-  const machineMat=new THREE.MeshStandardMaterial({color:0x26322e,roughness:.35,metalness:.35});
+  const dowelMat=new THREE.MeshBasicMaterial({color:0x0098cc,side:THREE.DoubleSide});
+  const machineMat=new THREE.MeshBasicMaterial({color:0x26322e,side:THREE.DoubleSide});
   const root=new THREE.Group(); root.scale.setScalar(U); scene.add(root);
   const parts=[], markers=[];
 
@@ -66,7 +66,7 @@ function startViewer() {
   }
   function part(type,profileKey,position,rotation,explode,flipProfile=false){const group=new THREE.Group(),g=geometry(profileKey,flipProfile),mesh=new THREE.Mesh(g,wood);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.partType=type;group.add(mesh);group.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,25),edgeMat));group.position.set(...position);group.rotation.set(...rotation);group.userData={base:new THREE.Vector3(...position),explode:new THREE.Vector3(...explode),partType:type};parts.push({group,mesh,type});root.add(group);return group;}
   function boxPart(type,size,position,explode){const group=new THREE.Group(),g=new THREE.BoxGeometry(...size),mesh=new THREE.Mesh(g,wood);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.partType=type;group.add(mesh);group.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,25),edgeMat));group.position.set(...position);group.userData={base:new THREE.Vector3(...position),explode:new THREE.Vector3(...explode),partType:type};parts.push({group,mesh,type});root.add(group);return group;}
-  function mark(parent,x,y,z,d,axis="z",kind="mecanizado"){const r=Math.max(d/2,3.1),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,1.5,20),kind==="tarugo"?dowelMat:machineMat);m.position.set(x,y,z);if(axis==="z")m.rotation.x=Math.PI/2;if(axis==="x")m.rotation.z=Math.PI/2;m.visible=false;m.userData.partType=parent.userData.partType;parent.add(m);markers.push(m);}
+  function mark(parent,x,y,z,d,axis="z",kind="mecanizado"){const r=Math.max(d/2,7),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,2,20),kind==="tarugo"?dowelMat:machineMat);m.position.set(x,y,z);if(axis==="z")m.rotation.x=Math.PI/2;if(axis==="x")m.rotation.z=Math.PI/2;m.visible=false;m.userData.partType=parent.userData.partType;parent.add(m);markers.push(m);}
 
   const sideZ=(modelData.dimensions.innerWidth+T)/2;
   const gap=part("lateral-hueco","lateralHueco",[0,220,sideZ],[0,0,0],[0,0,190],true);
@@ -85,8 +85,8 @@ function startViewer() {
   const aliases={lh:"lateral-hueco",lc:"lateral-completo",c:"cabecera",p:"parrilla",t:"tirante"};
   let active=aliases[route.get("p")]||route.get("pieza")||"lateral-hueco", amount=0;
   if(!pieces[active])active="lateral-hueco"; select.value=active;
-  function refresh(){for(const item of parts)item.mesh.material=item.type===active?selected:wood;for(const m of markers)m.visible=amount>.03&&(m.userData.partType===active||amount>.7);}
-  function explode(v){amount=v;for(const {group} of parts)group.position.copy(group.userData.base).addScaledVector(group.userData.explode,v);refresh();}
+  function refresh(){for(const item of parts)item.mesh.material=item.type===active?selected:wood;for(const m of markers)m.visible=amount>.01;}
+  function explode(v){amount=v;const separation=1-(1-v)**3;for(const {group} of parts)group.position.copy(group.userData.base).addScaledVector(group.userData.explode,separation);refresh();}
   select.onchange=()=>{active=select.value;refresh();history.replaceState({},"",`?cliente=picky-kids&mueble=cama-montessori-emi&pieza=${encodeURIComponent(active)}`);};
   const slider=document.getElementById("explode"),explodeButton=document.getElementById("explodeButton");slider.value="0";slider.oninput=()=>{const value=Number(slider.value);explode(value/100);explodeButton.textContent=value===100?"Ver armado completo":"Ver despiece completo";};explodeButton.onclick=()=>{slider.value=slider.value==="100"?"0":"100";explode(Number(slider.value)/100);explodeButton.textContent=slider.value==="100"?"Ver armado completo":"Ver despiece completo";};
   camera.position.set(20,12,24);controls.target.set(0,2.1,0);controls.minDistance=8;controls.maxDistance=70;refresh();

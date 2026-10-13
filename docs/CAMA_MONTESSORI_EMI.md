@@ -21,6 +21,8 @@ Los cuatro cerramientos se orientan con el zócalo continuo abajo. En el lateral
 
 Los cuatro mecanizados de cada parrilla se muestran sobre la cara inferior, orientados hacia los tirantes que la reciben.
 
+Los puntos aparecen apenas comienza el despiece. La separación se acelera al principio del recorrido para que los puntos interiores queden visibles pronto; la cámara permite girar debajo de la cama para revisar los de la cara inferior de las parrillas. Los símbolos se dibujan con un tamaño mínimo de lectura, mayor que el diámetro real de algunos agujeros; las coordenadas y las caras conservan su ubicación técnica.
+
 ## Reconstrucción
 
 `scripts/reconstruir_cama.py` extrae los perfiles cerrados del DXF, identifica los calados de 245 × 55 mm y guarda el resultado en `src/cama-data.json`. `src/cama.js` arma la escena con las dimensiones nominales y muestra puntos de mecanizado al avanzar el despiece.

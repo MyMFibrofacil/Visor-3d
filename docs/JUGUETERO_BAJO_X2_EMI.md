@@ -12,6 +12,8 @@ El visor usa los perfiles del DXF general y los agujeros de los XML. Las piezas 
 
 El conjunto se arma con dos laterales, fondo trasero, piso, tapa, divisor central y frentes inclinados. El visor permite seleccionar cada tipo, girar la cámara y separar todas las piezas.
 
+Para colocar los puntos del Flex sobre cada perfil, el visor registra primero las coordenadas del XML contra el DXF: invierte el eje longitudinal del lateral y el eje transversal de fondo, piso, tapa y divisor. Después aplica el giro propio de cada pieza en el mueble. El programa del lateral incluye operaciones para ambas caras; cada lateral físico muestra sólo las de su cara interior.
+
 ## Producción y etiquetas
 
 Los frentes parten de una tira de pantógrafo y se refilan en seccionadora a 361 x 160 mm. Las etiquetas se generan en JPEG horizontal de 100 x 60 mm para Zebra y en una plancha A4 de prueba. Cada etiqueta incluye pieza, posición, secuencia de procesos, puntos de mecanizado, Code 128 con el XML y QR al visor de la pieza.

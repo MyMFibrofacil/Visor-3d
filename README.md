@@ -17,6 +17,7 @@ Picky Kids
 ├─ Librero Emi
 ├─ Cama Montessori Emi
 ├─ Juguetero Bajo x2 Emi
+├─ Juguetero Alto Emi
 └─ Baúl Emi
 ```
 
@@ -37,6 +38,9 @@ La cama abre sus piezas con `lateral-hueco`, `lateral-completo`, `cabecera`, `pa
 El juguetero abre sus piezas con `lateral`, `fondo`, `tapa`, `piso`, `medio` y `frente`.
 La guía pública es:
 `https://mymfibrofacil.github.io/Visor-3d/?cliente=picky-kids&mueble=juguetero-bajo-x2-emi`
+
+El juguetero alto abre `lateral`, `fondo`, `frente` y `estante`:
+`https://mymfibrofacil.github.io/Visor-3d/?cliente=picky-kids&mueble=juguetero-alto`
 
 El baúl abre `tapa`, `frente`, `fondo`, `lateral` y `base`:
 `https://mymfibrofacil.github.io/Visor-3d/?cliente=picky-kids&mueble=baul-emi`

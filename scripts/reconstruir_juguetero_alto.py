@@ -104,8 +104,11 @@ data = {
         "innerWidth": 414.0, "height": 1180.0, "depth": 466.336,
         "backBottom": 29.75, "backDepth": 38.75,
         "shelfDepthStart": 48.0, "shelfHeights": [39.0, 515.0, 833.0, 1151.0],
-        "frontBottomY": 53.4, "frontBottomZ": 283.35,
-        "frontAngleDeg": 33.87,
+        # El punto central de minifix del lateral (134.476, 337.751)
+        # coincide con Y=97.631 del frente. Los tarugos vecinos fijan la
+        # pendiente desde abajo/adelante hacia arriba/atrás.
+        "frontBottomY": 53.4, "frontBottomZ": 392.15,
+        "frontAngleDeg": -33.87,
     },
     "sources": [str(DXF), *[str(path) for path in sorted(FLEX.glob("*.xml"))]],
 }

@@ -44,7 +44,7 @@ function startViewer() {
   document.getElementById('productName').textContent = 'Librero Emi';
   document.getElementById('sceneName').textContent = 'Librero';
   document.querySelector('.legend').innerHTML = '<span><i class="dowel-dot"></i>Tarugo</span><span><i class="hardware-dot"></i>Tornillo / avellanado</span>';
-  document.getElementById('homeButton').onclick = () => { location.href = location.pathname; };
+  document.getElementById('homeButton').onclick = () => { location.href = `?cliente=${encodeURIComponent(route.get('cliente') || defaultClient)}`; };
 
   const select = document.getElementById('pieceSelect');
   select.innerHTML = '<option value="lateral">Laterales</option><option value="separador">Separador con manija</option><option value="base">Base</option><option value="frente">Frentes</option>';

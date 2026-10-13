@@ -60,7 +60,7 @@ function startViewer() {
   document.getElementById("viewerApp").hidden = false;
   document.getElementById("clientName").textContent = `${selectedProduct.client.name.toUpperCase()} · GUÍA DE ARMADO 3D`;
   document.getElementById("productName").textContent = selectedProduct.furniture.title;
-  document.getElementById("homeButton").addEventListener("click", () => location.href = location.pathname);
+  document.getElementById("homeButton").addEventListener("click", () => location.href = `?cliente=${encodeURIComponent(route.get("cliente") || defaultClient)}`);
 
 const U = 0.01;
 const T = modelData.dimensions.thickness;

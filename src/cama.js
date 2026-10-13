@@ -32,7 +32,7 @@ function startViewer() {
   document.getElementById("clientName").textContent="PICKY KIDS · GUÍA DE ARMADO 3D";
   document.getElementById("productName").textContent="Cama Montessori Emi";
   document.getElementById("sceneName").textContent="Cama";
-  document.getElementById("homeButton").onclick=()=>location.href=location.pathname;
+  document.getElementById("homeButton").onclick=()=>location.href=`?cliente=${encodeURIComponent(route.get("cliente")||defaultClient)}`;
 
   const pieces={
     "lateral-hueco":"Lateral con hueco", "lateral-completo":"Lateral completo",

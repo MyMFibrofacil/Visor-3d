@@ -28,7 +28,7 @@ function startViewer(){
   document.getElementById("clientName").textContent="PICKY KIDS · GUÍA DE ARMADO 3D";
   document.getElementById("productName").textContent="Juguetero Bajo x2 Emi";
   document.getElementById("sceneName").textContent="Juguetero";
-  document.getElementById("homeButton").onclick=()=>location.href=location.pathname;
+  document.getElementById("homeButton").onclick=()=>location.href=`?cliente=${encodeURIComponent(route.get("cliente")||defaultClient)}`;
   const pieces={lateral:"Laterales",fondo:"Fondo",tapa:"Tapa",piso:"Piso",medio:"Divisor central",frente:"Frentes"};
   const select=document.getElementById("pieceSelect");select.replaceChildren(...Object.entries(pieces).map(([value,label])=>{const option=document.createElement("option");option.value=value;option.textContent=label;return option;}));
 

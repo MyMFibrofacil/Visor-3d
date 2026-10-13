@@ -23,16 +23,77 @@ function startViewer(){
  function geometry(key,mode='plain'){const p=transformedProfile(key,mode),s=new THREE.Shape();p.points.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:T,bevelEnabled:true,bevelSegments:2,bevelSize:.75,bevelThickness:.75,curveSegments:6});g.computeBoundingBox();const b=g.boundingBox;g.translate(-(b.min.x+b.max.x)/2,-(b.min.y+b.max.y)/2,-T/2);g.computeVertexNormals();return g;}
  function addPart(type,key,pos,rot,explode,mode='plain'){const group=new THREE.Group(),g=geometry(key,mode),mesh=new THREE.Mesh(g,wood);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.partType=type;group.add(mesh);group.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,24),edgeMat));group.position.set(...pos);group.rotation.set(...rot);group.userData={base:new THREE.Vector3(...pos),explode:new THREE.Vector3(...explode),partType:type};parts.push({group,mesh,type});root.add(group);return group;}
  function dot(parent,x,y,z,d=8,axis='z'){const r=Math.max(d/2,3),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,1.6,18),pointMat);m.position.set(x,y,z);if(axis==='z')m.rotation.x=Math.PI/2;if(axis==='x')m.rotation.z=Math.PI/2;m.visible=false;m.userData.partType=parent.userData.partType;parent.add(m);markers.push(m);}
- function addMachining(group,key,program,mode='plain',faceSign=1,dedupe=false){const prof=transformedProfile(key,mode),p=data.programs[program],seen=new Set();for(const op of p.operations){let x=op.x,y=op.y;if(key.startsWith('lateral'))[x,y]=[op.y,p.length-op.x];let nx=0,ny=0,edge=false;if(op.type==='Horizontal Hole'){if(Math.abs(x)<.3){nx=-1;edge=true;}else if(Math.abs(x-prof.width)<.3){nx=1;edge=true;}else if(Math.abs(y)<.3){ny=-1;edge=true;}else if(Math.abs(y-prof.height)<.3){ny=1;edge=true;}else continue;}const k=`${x.toFixed(1)}:${y.toFixed(1)}:${edge?`${nx},${ny}`:faceSign}`;if(dedupe&&seen.has(k))continue;seen.add(k);const px=x-prof.width/2,py=y-prof.height/2;if(edge)dot(group,px+nx*.8,py+ny*.8,0,op.diameter,Math.abs(nx)>.5?'x':'y');else dot(group,px,py,faceSign*(T/2+.8),op.diameter,'z');}}
+ function addMachining(group,key,program,options={}){
+  const {mode='plain',faceSign=1,mirrorX=false,faceType=null}=options;
+  const prof=transformedProfile(key,mode),p=data.programs[program],seen=new Set();
+  for(const op of p.operations){
+   if(faceType && op.type!=='Horizontal Hole' && op.type!==faceType)continue;
+   let x=op.x,y=op.y;
+   if(key.startsWith('lateral'))[x,y]=[mirrorX?p.width-op.y:op.y,p.length-op.x];
+   let nx=0,ny=0,edge=false;
+   if(op.type==='Horizontal Hole'){
+    if(Math.abs(x)<.3){nx=-1;edge=true;}
+    else if(Math.abs(x-prof.width)<.3){nx=1;edge=true;}
+    else if(Math.abs(y)<.3){ny=-1;edge=true;}
+    else if(Math.abs(y-prof.height)<.3){ny=1;edge=true;}
+    else continue;
+   }
+   const k=`${x.toFixed(1)}:${y.toFixed(1)}:${edge?`${nx},${ny}`:faceSign}`;
+   if(seen.has(k))continue;
+   seen.add(k);
+   const px=x-prof.width/2,py=y-prof.height/2;
+   if(edge)dot(group,px+nx*.8,py+ny*.8,0,op.diameter,Math.abs(nx)>.5?'x':'y');
+   else dot(group,px,py,faceSign*(T/2+.8),op.diameter,'z');
+  }
+ }
  const a=data.assembly,frontY=a.sideHeight-a.panelHeight/2;
- const front=addPart('frente','frente',[0,frontY,a.sideDepth/2],[0,0,0],[0,0,150],'swap');addMachining(front,'frente','MA000904000503180101.xml','swap',-1);
- const back=addPart('fondo','fondo',[0,frontY,-a.sideDepth/2],[0,Math.PI,0],[0,0,-150],'swap');addMachining(back,'fondo','MA000904000502180101.xml','swap',1);
- const sideX=a.frontWidth/2-T/2,left=addPart('lateral','lateral-a',[-sideX,a.sideHeight/2,0],[0,-Math.PI/2,0],[-170,0,0]),right=addPart('lateral','lateral-b',[sideX,a.sideHeight/2,0],[0,Math.PI/2,0],[170,0,0]);addMachining(left,'lateral-a','MA000904000504180101.xml','plain',1,true);addMachining(right,'lateral-b','MA000904000504180101.xml','plain',1,true);
- const base=addPart('base','base',[0,62,0],[-Math.PI/2,0,0],[0,-30,260]);addMachining(base,'base','MA000904000501180101.xml');
- const lid=addPart('tapa','tapa',[0,a.sideHeight,-a.sideDepth/2],[-.18,0,0],[0,135,-35],'swap');addMachining(lid,'tapa','MA000904000505180101.xml','swap',-1);for(const child of lid.children)child.position.y+=a.lidDepth/2;
+ const front=addPart('frente','frente',[0,frontY,a.sideDepth/2],[0,0,0],[0,0,230],'swap');addMachining(front,'frente','MA000904000503180101.xml',{mode:'swap',faceSign:-1});
+ const back=addPart('fondo','fondo',[0,frontY,-a.sideDepth/2],[0,Math.PI,0],[0,0,-230],'swap');addMachining(back,'fondo','MA000904000502180101.xml',{mode:'swap',faceSign:-1});
+ const sideX=a.frontWidth/2-T/2;
+ const left=addPart('lateral','lateral-a',[-sideX,a.sideHeight/2,0],[0,Math.PI/2,0],[-210,0,0]);
+ const right=addPart('lateral','lateral-b',[sideX,a.sideHeight/2,0],[0,-Math.PI/2,0],[210,0,0]);
+ addMachining(left,'lateral-a','MA000904000504180101.xml',{faceType:'Vertical Hole'});
+ addMachining(right,'lateral-b','MA000904000504180101.xml',{mirrorX:true,faceType:'Back Vertical Hole'});
+ const base=addPart('base','base',[0,62,0],[-Math.PI/2,0,0],[0,330,0]);addMachining(base,'base','MA000904000501180101.xml');
+ const lid=addPart('tapa','tapa',[0,a.sideHeight,-a.sideDepth/2],[-Math.PI/2,0,0],[0,150,-90],'swap');
+ addMachining(lid,'tapa','MA000904000505180101.xml',{mode:'swap',faceSign:-1});
+ for(const child of lid.children)child.position.y-=a.lidDepth/2;
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,16),new THREE.MeshStandardMaterial({color:0xdfe5df,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
- let active=route.get('pieza')||'tapa',amount=0;if(!pieces[active])active='tapa';select.value=active;function refresh(){for(const i of parts)i.mesh.material=i.type===active?selected:wood;for(const p of markers)p.visible=amount>.03&&(p.userData.partType===active||amount>.7);}function explode(v){amount=v;for(const {group} of parts)group.position.copy(group.userData.base).addScaledVector(group.userData.explode,v);refresh();}
- select.onchange=()=>{active=select.value;refresh();const u=new URL(location.href);u.searchParams.set('cliente','picky-kids');u.searchParams.set('mueble','baul-emi');u.searchParams.set('pieza',active);history.replaceState({},'',u);};const slider=document.getElementById('explode'),button=document.getElementById('explodeButton');slider.value='0';slider.oninput=()=>{const v=Number(slider.value);explode(v/100);button.textContent=v===100?'Ver armado completo':'Ver despiece completo';};button.onclick=()=>{slider.value=slider.value==='100'?'0':'100';explode(Number(slider.value)/100);button.textContent=slider.value==='100'?'Ver armado completo':'Ver despiece completo';};
- camera.position.set(13,9,15);controls.target.set(0,1.7,0);controls.minDistance=5;controls.maxDistance=90;refresh();function resize(){renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);framing.resize();}new ResizeObserver(resize).observe(canvas);resize();function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);}animate();document.getElementById('loading').classList.add('ready');
+ const smooth=(from,to,value)=>{const t=THREE.MathUtils.clamp((value-from)/(to-from),0,1);return t*t*(3-2*t);};
+ let active=route.get('pieza')||'tapa',amount=0,targetAmount=0,lidProgress=0,lidTarget=0;
+ if(!pieces[active])active='tapa';select.value=active;
+ const lidButton=document.createElement('button');lidButton.type='button';lidButton.className='lid-toggle';lidButton.textContent='Abrir tapa';lidButton.setAttribute('aria-pressed','false');document.querySelector('.stage').append(lidButton);
+ lidButton.onclick=()=>{lidTarget=lidTarget?0:1;lidButton.textContent=lidTarget?'Cerrar tapa':'Abrir tapa';lidButton.setAttribute('aria-pressed',String(Boolean(lidTarget)));};
+ function refresh(){for(const i of parts)i.mesh.material=i.type===active?selected:wood;for(const p of markers)p.visible=amount>.03&&(p.userData.partType===active||amount>.7);}
+ function updateAssembly(){
+  const spread=smooth(0,.75,amount),baseLift=smooth(.25,1,amount)*smooth(.55,.95,lidProgress),lidSeparation=smooth(.55,1,amount);
+  for(const {group} of parts){
+   const basePosition=group.userData.base,offset=group.userData.explode;
+   const progress=group===base?baseLift:group===lid?lidSeparation:spread;
+   group.position.copy(basePosition).addScaledVector(offset,progress);
+  }
+  // El borde con las cazoletas queda fijo sobre el fondo; abre alrededor de esa línea.
+  lid.rotation.x=THREE.MathUtils.lerp(-Math.PI/2,-Math.PI-.13,lidProgress);
+  const targetY=2.25+1.15*lidProgress+.65*amount,delta=targetY-controls.target.y;
+  controls.target.y=targetY;camera.position.y+=delta;
+  refresh();
+ }
+ select.onchange=()=>{active=select.value;refresh();const u=new URL(location.href);u.searchParams.set('cliente','picky-kids');u.searchParams.set('mueble','baul-emi');u.searchParams.set('pieza',active);history.replaceState({},'',u);};
+ const slider=document.getElementById('explode'),button=document.getElementById('explodeButton');slider.value='0';
+ function setDespiece(value){targetAmount=value;button.textContent=value===1?'Ver armado completo':'Ver despiece completo';lidButton.hidden=value>.01;}
+ slider.oninput=()=>setDespiece(Number(slider.value)/100);
+ button.onclick=()=>{slider.value=slider.value==='100'?'0':'100';setDespiece(Number(slider.value)/100);};
+ camera.position.set(15,10.5,18);controls.target.set(0,2.25,0);controls.minDistance=5;controls.maxDistance=90;
+ updateAssembly();function resize(){renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);framing.resize();}new ResizeObserver(resize).observe(canvas);resize();
+ const animationClock=new THREE.Clock();
+ function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(animationClock.getDelta(),.05),speed=1-Math.exp(-dt*5.5);
+  amount=THREE.MathUtils.lerp(amount,targetAmount,speed);
+  lidProgress=THREE.MathUtils.lerp(lidProgress,Math.max(lidTarget,smooth(0,.28,amount)),speed);
+  if(Math.abs(amount-targetAmount)<.0005)amount=targetAmount;
+  updateAssembly();controls.update();renderer.render(scene,camera);
+ }
+ animate();document.getElementById('loading').classList.add('ready');
 }
 if(route.has('mueble')||hasDirectPiece)startViewer();else showCatalog();

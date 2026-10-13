@@ -41,7 +41,7 @@ for f in sorted(FLEX.glob('*.xml')):
   ops.append({'type':o.findtext('TypeName'),'x':round(num(o.findtext('X1'),L,W),3),'y':round(num(o.findtext('Y1'),L,W),3),'diameter':float(o.findtext('Diameter')),'depth':float(o.findtext('Depth')),'quadrant':o.findtext('Quadrant')})
  programs[f.name]={'length':L,'width':W,'operations':ops}
 data={'product':'Baul Emi','code':'MA0009040005','thickness':18.5,'profiles':profiles,'programs':programs,
- 'assembly':{'frontWidth':770,'panelHeight':452.05,'sideDepth':379,'sideHeight':349,'baseWidth':693.5,'baseDepth':349,'lidWidth':800,'lidDepth':400},
+ 'assembly':{'frontWidth':770,'panelHeight':452.05,'sideDepth':349,'sideHeight':379,'baseWidth':693.5,'baseDepth':349,'lidWidth':800,'lidDepth':400},
  'sources':[str(ROUTER/'Baul Emi.dxf'),*[str(f) for f in sorted(FLEX.glob('*.xml'))]]}
 OUT.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
 print(OUT)

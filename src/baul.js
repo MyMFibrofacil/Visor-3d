@@ -17,19 +17,20 @@ function startViewer(){
  const pieces={tapa:"Tapa",frente:"Frente",fondo:"Fondo",lateral:"Laterales",base:"Base"},select=document.getElementById("pieceSelect");select.replaceChildren(...Object.entries(pieces).map(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=l;return o;}));
  const U=.01,T=data.thickness,canvas=document.getElementById("viewer"),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
  const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xe9eee9,110,170);const camera=new THREE.PerspectiveCamera(31,1,.05,180),controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=.07;controls.maxPolarAngle=Math.PI*.6;const framing=responsiveCamera(camera,controls,canvas,1.3);scene.add(new THREE.HemisphereLight(0xffffff,0x68746c,2.2));const sun=new THREE.DirectionalLight(0xffffff,3.1);sun.position.set(9,13,10);sun.castShadow=true;scene.add(sun);
- const wood=new THREE.MeshStandardMaterial({color:0x9aae72,roughness:.73}),selected=new THREE.MeshStandardMaterial({color:0xe3262e,roughness:.42,emissive:0x5a0000,emissiveIntensity:.22}),edgeMat=new THREE.LineBasicMaterial({color:0x263b22,transparent:true,opacity:.58}),pointMat=new THREE.MeshStandardMaterial({color:0x177da3,roughness:.4,emissive:0x063848,emissiveIntensity:.18});
+ const wood=new THREE.MeshStandardMaterial({color:0x9aae72,roughness:.73}),selected=new THREE.MeshStandardMaterial({color:0xe3262e,roughness:.42,emissive:0x5a0000,emissiveIntensity:.22}),edgeMat=new THREE.LineBasicMaterial({color:0x263b22,transparent:true,opacity:.58}),pointMat=new THREE.MeshBasicMaterial({color:0x008fbd,side:THREE.DoubleSide});
  const root=new THREE.Group();root.scale.setScalar(U);scene.add(root);const parts=[],markers=[];
- function transformedProfile(key,mode){const p=data.profiles[key],points=p.outline.map(([x,y])=>mode==='swap'?[y,x]:[x,y]);return {points,width:mode==='swap'?p.height:p.width,height:mode==='swap'?p.width:p.height};}
- function geometry(key,mode='plain'){const p=transformedProfile(key,mode),s=new THREE.Shape();p.points.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:T,bevelEnabled:true,bevelSegments:2,bevelSize:.75,bevelThickness:.75,curveSegments:6});g.computeBoundingBox();const b=g.boundingBox;g.translate(-(b.min.x+b.max.x)/2,-(b.min.y+b.max.y)/2,-T/2);g.computeVertexNormals();return g;}
+ function transformedProfile(key,mode){const p=data.profiles[key],points=p.outline.map(([x,y])=>mode==='swap'?[y,x]:mode==='swap-flip'?[p.height-y,p.width-x]:[x,y]);return {points,width:mode==='plain'?p.width:p.height,height:mode==='plain'?p.height:p.width};}
+ function geometry(key,mode='plain'){const p=transformedProfile(key,mode),s=new THREE.Shape();p.points.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:T,bevelEnabled:false,curveSegments:6});g.computeBoundingBox();const b=g.boundingBox;g.translate(-(b.min.x+b.max.x)/2,-(b.min.y+b.max.y)/2,-T/2);g.computeVertexNormals();return g;}
  function addPart(type,key,pos,rot,explode,mode='plain'){const group=new THREE.Group(),g=geometry(key,mode),mesh=new THREE.Mesh(g,wood);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.partType=type;group.add(mesh);group.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,24),edgeMat));group.position.set(...pos);group.rotation.set(...rot);group.userData={base:new THREE.Vector3(...pos),explode:new THREE.Vector3(...explode),partType:type};parts.push({group,mesh,type});root.add(group);return group;}
- function dot(parent,x,y,z,d=8,axis='z'){const r=Math.max(d/2,3),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,1.6,18),pointMat);m.position.set(x,y,z);if(axis==='z')m.rotation.x=Math.PI/2;if(axis==='x')m.rotation.z=Math.PI/2;m.visible=false;m.userData.partType=parent.userData.partType;parent.add(m);markers.push(m);}
+ function dot(parent,x,y,z,d=8,axis='z'){const r=Math.max(d/2,6),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,2,18),pointMat);m.position.set(x,y,z);if(axis==='z')m.rotation.x=Math.PI/2;if(axis==='x')m.rotation.z=Math.PI/2;m.visible=false;m.userData.partType=parent.userData.partType;parent.add(m);markers.push(m);}
  function addMachining(group,key,program,options={}){
   const {mode='plain',faceSign=1,mirrorX=false,faceType=null}=options;
   const prof=transformedProfile(key,mode),p=data.programs[program],seen=new Set();
   for(const op of p.operations){
    if(faceType && op.type!=='Horizontal Hole' && op.type!==faceType)continue;
    let x=op.x,y=op.y;
-   if(key.startsWith('lateral'))[x,y]=[mirrorX?p.width-op.y:op.y,p.length-op.x];
+   if(key.startsWith('lateral'))[x,y]=[mirrorX?p.length-op.x:op.x,p.width-op.y];
+   else if(mode==='swap-flip')[x,y]=[p.length-op.x,p.width-op.y];
    let nx=0,ny=0,edge=false;
    if(op.type==='Horizontal Hole'){
     if(Math.abs(x)<.3){nx=-1;edge=true;}
@@ -46,16 +47,15 @@ function startViewer(){
    else dot(group,px,py,faceSign*(T/2+.8),op.diameter,'z');
   }
  }
- const a=data.assembly,frontY=a.sideHeight-a.panelHeight/2;
- const front=addPart('frente','frente',[0,frontY,a.sideDepth/2],[0,0,0],[0,0,230],'swap');addMachining(front,'frente','MA000904000503180101.xml',{mode:'swap',faceSign:-1});
- const back=addPart('fondo','fondo',[0,frontY,-a.sideDepth/2],[0,Math.PI,0],[0,0,-230],'swap');addMachining(back,'fondo','MA000904000502180101.xml',{mode:'swap',faceSign:-1});
- const sideX=a.frontWidth/2-T/2;
- const left=addPart('lateral','lateral-a',[-sideX,a.sideHeight/2,0],[0,Math.PI/2,0],[-210,0,0]);
- const right=addPart('lateral','lateral-b',[sideX,a.sideHeight/2,0],[0,-Math.PI/2,0],[210,0,0]);
- addMachining(left,'lateral-a','MA000904000504180101.xml',{faceType:'Vertical Hole'});
- addMachining(right,'lateral-b','MA000904000504180101.xml',{mirrorX:true,faceType:'Back Vertical Hole'});
- const base=addPart('base','base',[0,62,0],[-Math.PI/2,0,0],[0,330,0]);addMachining(base,'base','MA000904000501180101.xml');
- const lid=addPart('tapa','tapa',[0,a.sideHeight,-a.sideDepth/2],[-Math.PI/2,0,0],[0,150,-90],'swap');
+ const a=data.assembly,sideBottom=a.panelHeight-a.sideHeight,wallZ=(a.sideDepth+T)/2,sideX=(a.baseWidth+T)/2;
+ const front=addPart('frente','frente',[0,a.panelHeight/2,wallZ],[0,0,0],[0,0,230],'swap-flip');addMachining(front,'frente','MA000904000503180101.xml',{mode:'swap-flip',faceSign:-1});
+ const back=addPart('fondo','fondo',[0,a.panelHeight/2,-wallZ],[0,Math.PI,0],[0,0,-230],'swap-flip');addMachining(back,'fondo','MA000904000502180101.xml',{mode:'swap-flip',faceSign:-1});
+ const left=addPart('lateral','lateral-a',[-sideX,sideBottom+a.sideHeight/2,0],[0,Math.PI/2,0],[-210,0,0],'swap');
+ const right=addPart('lateral','lateral-b',[sideX,sideBottom+a.sideHeight/2,0],[0,-Math.PI/2,0],[210,0,0],'swap');
+ addMachining(left,'lateral-a','MA000904000504180101.xml',{mode:'swap',faceType:'Vertical Hole'});
+ addMachining(right,'lateral-b','MA000904000504180101.xml',{mode:'swap',mirrorX:true,faceType:'Back Vertical Hole'});
+ const base=addPart('base','base',[0,sideBottom+T/2,0],[-Math.PI/2,0,0],[0,330,0]);addMachining(base,'base','MA000904000501180101.xml');
+ const lid=addPart('tapa','tapa',[0,a.panelHeight+T/2,-a.lidDepth/2],[-Math.PI/2,0,0],[0,150,-90],'swap');
  addMachining(lid,'tapa','MA000904000505180101.xml',{mode:'swap',faceSign:-1});
  for(const child of lid.children)child.position.y-=a.lidDepth/2;
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,16),new THREE.MeshStandardMaterial({color:0xdfe5df,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
@@ -64,9 +64,9 @@ function startViewer(){
  if(!pieces[active])active='tapa';select.value=active;
  const lidButton=document.createElement('button');lidButton.type='button';lidButton.className='lid-toggle';lidButton.textContent='Abrir tapa';lidButton.setAttribute('aria-pressed','false');document.querySelector('.stage').append(lidButton);
  lidButton.onclick=()=>{lidTarget=lidTarget?0:1;lidButton.textContent=lidTarget?'Cerrar tapa':'Abrir tapa';lidButton.setAttribute('aria-pressed',String(Boolean(lidTarget)));};
- function refresh(){for(const i of parts)i.mesh.material=i.type===active?selected:wood;for(const p of markers)p.visible=amount>.03&&(p.userData.partType===active||amount>.7);}
+ function refresh(){for(const i of parts)i.mesh.material=i.type===active?selected:wood;for(const p of markers)p.visible=amount>.01;}
  function updateAssembly(){
-  const spread=smooth(0,.75,amount),baseLift=smooth(.25,1,amount)*smooth(.55,.95,lidProgress),lidSeparation=smooth(.55,1,amount);
+  const spread=1-(1-THREE.MathUtils.clamp(amount/.8,0,1))**3,baseLift=smooth(.25,1,amount)*smooth(.55,.95,lidProgress),lidSeparation=smooth(.55,1,amount);
   for(const {group} of parts){
    const basePosition=group.userData.base,offset=group.userData.explode;
    const progress=group===base?baseLift:group===lid?lidSeparation:spread;
@@ -90,7 +90,7 @@ function startViewer(){
   requestAnimationFrame(animate);
   const dt=Math.min(animationClock.getDelta(),.05),speed=1-Math.exp(-dt*5.5);
   amount=THREE.MathUtils.lerp(amount,targetAmount,speed);
-  lidProgress=THREE.MathUtils.lerp(lidProgress,Math.max(lidTarget,smooth(0,.28,amount)),speed);
+  lidProgress=THREE.MathUtils.lerp(lidProgress,Math.max(lidTarget,smooth(0,.18,amount)),speed);
   if(Math.abs(amount-targetAmount)<.0005)amount=targetAmount;
   updateAssembly();controls.update();renderer.render(scene,camera);
  }

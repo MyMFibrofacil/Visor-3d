@@ -15,11 +15,11 @@ El archivo generado es `src/juguetero-alto-data.json`. El modelo y la interacci�
 - Laterales: 1180 x 466,3 mm, con las caras mecanizadas hacia el interior.
 - Fondo: 1130,5 x 414 mm, desde 29,75 mm de altura y centrado en profundidad 38,75 mm.
 - Estantes: cuatro piezas de 414 x 270 mm, a 39, 515, 833 y 1151 mm.
-- Frente: 414 x 280 mm, inclinado 33,87 grados desde abajo/adelante hacia arriba/atrás. Su origen inferior aproximado es Y 53,4 / Z 392,15.
+- Frente: 414 x 280 mm, inclinado desde abajo/adelante hacia arriba/atrás, con la ranura hacia arriba. Su origen inferior aproximado es Y 53,4 / Z 392,15.
 
 Las posiciones se obtienen al hacer coincidir las coordenadas de los agujeros entre piezas. El XML `704` contiene operaciones equivalentes en ambas caras para dos laterales; el visor distribuye un juego sobre la cara interior de cada lateral.
 
-En el frente, el agujero de minifix situado a 97,631 mm coincide con el punto del lateral Y 134,476 / Z 337,751. Los tarugos a 48,815 y 146,446 mm coinciden respectivamente con Y 93,94 / Z 364,95 y Y 175,012 / Z 310,552. Esta correspondencia determina la pendiente y evita invertir la tolva inferior.
+En el frente, el agujero de minifix situado a 97,631 mm coincide con el punto del lateral Y 134,476 / Z 337,751. Los tarugos a 48,815 y 146,446 mm fijan la misma recta de unión. El contorno DXF se invierte verticalmente para mostrar la ranura arriba sin desplazar esa recta ni sacar el frente fuera del mueble.
 
 ## Ruta y piezas
 

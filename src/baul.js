@@ -4,6 +4,7 @@ import data from "./baul-data.json";
 import { catalog, defaultClient } from "./catalog.js";
 import "./styles.css";
 import { responsiveCamera } from "./responsive-camera.js";
+import { createEdgeMaterial, createHighlightMaterial, createWoodMaterial, VIEWER_COLORS } from "./viewer-palette.js";
 
 const route=new URLSearchParams(location.search),hasDirectPiece=route.has("pieza")||route.has("p");
 function showCatalog(){
@@ -17,7 +18,7 @@ function startViewer(){
  const pieces={tapa:"Tapa",frente:"Frente",fondo:"Fondo",lateral:"Laterales",base:"Base"},select=document.getElementById("pieceSelect");select.replaceChildren(...Object.entries(pieces).map(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=l;return o;}));
  const U=.01,T=data.thickness,canvas=document.getElementById("viewer"),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
  const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xe9eee9,110,170);const camera=new THREE.PerspectiveCamera(31,1,.05,180),controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=.07;controls.maxPolarAngle=Math.PI*.6;const framing=responsiveCamera(camera,controls,canvas,1.3);scene.add(new THREE.HemisphereLight(0xffffff,0x68746c,2.2));const sun=new THREE.DirectionalLight(0xffffff,3.1);sun.position.set(9,13,10);sun.castShadow=true;scene.add(sun);
- const wood=new THREE.MeshStandardMaterial({color:0x9aae72,roughness:.73}),selected=new THREE.MeshStandardMaterial({color:0xe3262e,roughness:.42,emissive:0x5a0000,emissiveIntensity:.22}),edgeMat=new THREE.LineBasicMaterial({color:0x263b22,transparent:true,opacity:.58}),pointMat=new THREE.MeshBasicMaterial({color:0x008fbd,side:THREE.DoubleSide});
+ const wood=createWoodMaterial(),selected=createHighlightMaterial(),edgeMat=createEdgeMaterial(),pointMat=new THREE.MeshBasicMaterial({color:VIEWER_COLORS.dowel,side:THREE.DoubleSide});
  const root=new THREE.Group();root.scale.setScalar(U);scene.add(root);const parts=[],markers=[];
  function transformedProfile(key,mode){const p=data.profiles[key],points=p.outline.map(([x,y])=>mode==='swap'?[y,x]:mode==='swap-flip'?[p.height-y,p.width-x]:[x,y]);return {points,width:mode==='plain'?p.width:p.height,height:mode==='plain'?p.height:p.width};}
  function geometry(key,mode='plain'){const p=transformedProfile(key,mode),s=new THREE.Shape();p.points.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:T,bevelEnabled:false,curveSegments:6});g.computeBoundingBox();const b=g.boundingBox;g.translate(-(b.min.x+b.max.x)/2,-(b.min.y+b.max.y)/2,-T/2);g.computeVertexNormals();return g;}
@@ -58,7 +59,7 @@ function startViewer(){
  const lid=addPart('tapa','tapa',[0,a.panelHeight+T/2,-a.lidDepth/2],[-Math.PI/2,0,0],[0,150,-90],'swap');
  addMachining(lid,'tapa','MA000904000505180101.xml',{mode:'swap',faceSign:-1});
  for(const child of lid.children)child.position.y-=a.lidDepth/2;
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,16),new THREE.MeshStandardMaterial({color:0xdfe5df,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,16),new THREE.MeshStandardMaterial({color:VIEWER_COLORS.floor,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
  const smooth=(from,to,value)=>{const t=THREE.MathUtils.clamp((value-from)/(to-from),0,1);return t*t*(3-2*t);};
  let active=route.get('pieza')||'tapa',amount=0,targetAmount=0,lidProgress=0,lidTarget=0;
  if(!pieces[active])active='tapa';select.value=active;

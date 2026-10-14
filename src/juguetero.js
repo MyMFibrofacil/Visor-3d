@@ -4,6 +4,7 @@ import modelData from "./juguetero-data.json";
 import { catalog, defaultClient, getProduct } from "./catalog.js";
 import "./styles.css";
 import { responsiveCamera } from "./responsive-camera.js";
+import { createEdgeMaterial, createHighlightMaterial, createWoodMaterial, VIEWER_COLORS } from "./viewer-palette.js";
 
 const route = new URLSearchParams(location.search);
 const selectedProduct = getProduct(route.get("cliente") || defaultClient, "juguetero-bajo-x2-emi");
@@ -37,7 +38,7 @@ function startViewer(){
   const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xe9eee9,115,175);
   const camera=new THREE.PerspectiveCamera(31,1,.05,160),controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=.07;controls.maxPolarAngle=Math.PI*.58;
   const framing=responsiveCamera(camera,controls,canvas,1.25);scene.add(new THREE.HemisphereLight(0xffffff,0x6b756f,2.25));const light=new THREE.DirectionalLight(0xffffff,3.2);light.position.set(8,12,9);light.castShadow=true;light.shadow.mapSize.set(2048,2048);scene.add(light);
-  const wood=new THREE.MeshStandardMaterial({color:0x8da36a,roughness:.72}),selected=new THREE.MeshStandardMaterial({color:0xe3262e,roughness:.42,emissive:0x5a0000,emissiveIntensity:.22}),edgeMat=new THREE.LineBasicMaterial({color:0x263b22,transparent:true,opacity:.6}),dowelMat=new THREE.MeshStandardMaterial({color:0x36a5cf,roughness:.45,emissive:0x063848,emissiveIntensity:.18}),hardwareMat=new THREE.MeshStandardMaterial({color:0x26322e,roughness:.35,metalness:.25});
+  const wood=createWoodMaterial(),selected=createHighlightMaterial(),edgeMat=createEdgeMaterial(),dowelMat=new THREE.MeshStandardMaterial({color:VIEWER_COLORS.dowel,roughness:.45,emissive:0x063848,emissiveIntensity:.18}),hardwareMat=new THREE.MeshStandardMaterial({color:VIEWER_COLORS.hardware,roughness:.35,metalness:.25});
   const root=new THREE.Group();root.scale.setScalar(U);scene.add(root);const parts=[],markers=[];
 
   function geometry(profileKey,swapXY=false,flipX=false,flipY=false){const profile=modelData.profiles[profileKey],shape=new THREE.Shape(),width=swapXY?profile.height:profile.width,height=swapXY?profile.width:profile.height,outline=profile.outline.map(([x,y])=>{let point=swapXY?[y,x]:[x,y];if(flipX)point=[width-point[0],point[1]];if(flipY)point=[point[0],height-point[1]];return point;});outline.forEach(([x,y],index)=>index?shape.lineTo(x,y):shape.moveTo(x,y));shape.closePath();const geometry=new THREE.ExtrudeGeometry(shape,{depth:T,bevelEnabled:true,bevelSegments:2,bevelSize:.8,bevelThickness:.8,curveSegments:5});geometry.computeBoundingBox();const box=geometry.boundingBox;geometry.translate(-(box.min.x+box.max.x)/2,-(box.min.y+box.max.y)/2,-T/2);geometry.computeVertexNormals();return geometry;}
@@ -83,7 +84,7 @@ function startViewer(){
   const angle=THREE.MathUtils.degToRad(assembly.frontAngleDeg),opening=(assembly.innerWidth-T)/2,frontX=(T+opening)/2;
   for(const sign of [-1,1]){const front=part("frente","frente",[sign*frontX,assembly.frontCenterY,assembly.frontCenterZ],[angle,0,0],[sign*85,20,125]);machiningMarkers(front,"frente","MA000904000402180101.xml");}
 
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,16),new THREE.MeshStandardMaterial({color:0xdfe5df,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,16),new THREE.MeshStandardMaterial({color:VIEWER_COLORS.floor,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
   let active=route.get("pieza")||"lateral",amount=0;if(!pieces[active])active="lateral";select.value=active;
   function refresh(){for(const item of parts)item.mesh.material=item.type===active?selected:wood;for(const point of markers)point.visible=amount>.03&&(point.userData.partType===active||amount>.7);}
   function explode(value){amount=value;for(const {group} of parts)group.position.copy(group.userData.base).addScaledVector(group.userData.explode,value);refresh();}

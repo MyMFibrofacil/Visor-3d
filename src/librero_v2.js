@@ -4,6 +4,7 @@ import { catalog, defaultClient, defaultFurniture, getProduct } from './catalog.
 import './styles.css';
 import model from './librero-data.json';
 import { responsiveCamera } from './responsive-camera.js';
+import { createEdgeMaterial, createHighlightMaterial, createWoodMaterial, VIEWER_COLORS } from './viewer-palette.js';
 
 const route = new URLSearchParams(location.search);
 getProduct(route.get('cliente') || defaultClient, route.get('mueble') || defaultFurniture);
@@ -65,10 +66,11 @@ function startViewer() {
   const keyLight = new THREE.DirectionalLight(0xffffff, 3);
   keyLight.position.set(5, 8, 6); keyLight.castShadow = true; scene.add(keyLight);
 
-  const wood = new THREE.MeshStandardMaterial({ color: 0xd7a16e, roughness: .66 });
-  const selected = new THREE.MeshStandardMaterial({ color: 0xe3262e, roughness: .45, emissive: 0x580000, emissiveIntensity: .18 });
-  const holeMaterial = new THREE.MeshStandardMaterial({ color: 0x2459d3, roughness: .25 });
-  const screwMaterial = new THREE.MeshStandardMaterial({ color: 0x263c34, roughness: .25 });
+  const wood = createWoodMaterial();
+  const selected = createHighlightMaterial();
+  const edgeMaterial = createEdgeMaterial();
+  const holeMaterial = new THREE.MeshStandardMaterial({ color: VIEWER_COLORS.dowel, roughness: .25 });
+  const screwMaterial = new THREE.MeshStandardMaterial({ color: VIEWER_COLORS.hardware, roughness: .25 });
   const root = new THREE.Group(); root.scale.setScalar(.01); scene.add(root);
   const groups = {}, meshes = [], holes = [];
 
@@ -80,7 +82,7 @@ function startViewer() {
     mesh.castShadow = mesh.receiveShadow = true;
     mesh.userData = { name };
     group.add(mesh);
-    group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry), new THREE.LineBasicMaterial({ color: 0x70452b, transparent: true, opacity: .48 })));
+    group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMaterial));
     root.add(group); (groups[name] ??= []).push(group); meshes.push(mesh);
     return group;
   }
@@ -117,7 +119,7 @@ function startViewer() {
     }
   }
 
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(8, 64), new THREE.MeshStandardMaterial({ color: 0xd7ddd6, roughness: 1 }));
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(8, 64), new THREE.MeshStandardMaterial({ color: VIEWER_COLORS.floor, roughness: 1 }));
   floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
   const requestedPiece = route.get('pieza') || 'lateral';
   // Keep the QR on already printed pre-cut panels usable.

@@ -4,6 +4,7 @@ import modelData from "./model-data.json";
 import { catalog, defaultClient, defaultFurniture, getProduct } from "./catalog.js";
 import "./styles.css";
 import { responsiveCamera } from './responsive-camera.js';
+import { createEdgeMaterial, createHighlightMaterial, createWoodMaterial, VIEWER_COLORS } from "./viewer-palette.js";
 
 const route = new URLSearchParams(location.search);
 const hasDirectPiece = route.has("pieza") || route.has("p");
@@ -101,31 +102,12 @@ keyLight.shadow.camera.left = -10; keyLight.shadow.camera.right = 10;
 keyLight.shadow.camera.top = 10; keyLight.shadow.camera.bottom = -10;
 scene.add(keyLight);
 
-function woodTexture() {
-  const c = document.createElement("canvas"); c.width = 384; c.height = 384;
-  const ctx = c.getContext("2d");
-  ctx.fillStyle = "#cf9a69"; ctx.fillRect(0, 0, c.width, c.height);
-  for (let i = 0; i < 150; i++) {
-    const y = (i * 31) % c.height;
-    ctx.strokeStyle = `rgba(91,49,25,${.025 + (i % 6) * .009})`;
-    ctx.lineWidth = .7 + (i % 4) * .3;
-    ctx.beginPath(); ctx.moveTo(0, y);
-    ctx.bezierCurveTo(100, y + Math.sin(i) * 11, 255, y - Math.cos(i * .6) * 10, 384, y + Math.sin(i * .33) * 8);
-    ctx.stroke();
-  }
-  const texture = new THREE.CanvasTexture(c);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(3, 3);
-  return texture;
-}
-
-const woodMaterial = new THREE.MeshStandardMaterial({ map: woodTexture(), color: 0xe0b181, roughness: .7 });
-const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xe3262e, roughness: .42, emissive: 0x5a0000, emissiveIntensity: .22 });
-const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x5a321d, transparent: true, opacity: .5 });
-const holeMaterial = new THREE.MeshStandardMaterial({ color: 0x39271d, roughness: .9 });
-const dowelMaterial = new THREE.MeshStandardMaterial({ color: 0x36a5cf, roughness: .45, emissive: 0x063848, emissiveIntensity: .22 });
-const hardwareMaterial = new THREE.MeshStandardMaterial({ color: 0x26322e, roughness: .32, metalness: .4 });
+const woodMaterial = createWoodMaterial();
+const highlightMaterial = createHighlightMaterial();
+const edgeMaterial = createEdgeMaterial();
+const holeMaterial = new THREE.MeshStandardMaterial({ color: VIEWER_COLORS.hole, roughness: .9 });
+const dowelMaterial = new THREE.MeshStandardMaterial({ color: VIEWER_COLORS.dowel, roughness: .45, emissive: 0x063848, emissiveIntensity: .22 });
+const hardwareMaterial = new THREE.MeshStandardMaterial({ color: VIEWER_COLORS.hardware, roughness: .32, metalness: .4 });
 
 const tableRoot = new THREE.Group();
 const chairRoot = new THREE.Group();
@@ -289,7 +271,7 @@ function addChair() {
 
 addTable(); addChair();
 
-const floor = new THREE.Mesh(new THREE.CircleGeometry(13,64), new THREE.MeshStandardMaterial({ color:0xd8ddd7, roughness:1 }));
+const floor = new THREE.Mesh(new THREE.CircleGeometry(13,64), new THREE.MeshStandardMaterial({ color:VIEWER_COLORS.floor, roughness:1 }));
 floor.rotation.x = -Math.PI/2; floor.position.y = -.015; floor.receiveShadow = true; scene.add(floor);
 
 const shortPiece = { t:"tapa", f:"faja", lm:"lateral-mesa", ls:"lateral-silla", a:"asiento", r:"respaldo", tr:"trava" };

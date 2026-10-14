@@ -4,6 +4,7 @@ import modelData from "./cama-data.json";
 import { catalog, defaultClient, getProduct } from "./catalog.js";
 import "./styles.css";
 import { responsiveCamera } from "./responsive-camera.js";
+import { createEdgeMaterial, createHighlightMaterial, createWoodMaterial, VIEWER_COLORS } from "./viewer-palette.js";
 
 const route = new URLSearchParams(location.search);
 const selectedProduct = getProduct(route.get("cliente") || defaultClient, "cama-montessori-emi");
@@ -48,11 +49,11 @@ function startViewer() {
   const framing=responsiveCamera(camera,controls,canvas); scene.add(new THREE.HemisphereLight(0xffffff,0x6b756f,2.2));
   const light=new THREE.DirectionalLight(0xffffff,3.3); light.position.set(7,11,9); light.castShadow=true; light.shadow.mapSize.set(2048,2048); scene.add(light);
 
-  const wood=new THREE.MeshStandardMaterial({color:0xd5a06e,roughness:.72});
-  const selected=new THREE.MeshStandardMaterial({color:0xe3262e,roughness:.42,emissive:0x5a0000,emissiveIntensity:.22});
-  const edgeMat=new THREE.LineBasicMaterial({color:0x5a321d,transparent:true,opacity:.5});
-  const dowelMat=new THREE.MeshBasicMaterial({color:0x0098cc,side:THREE.DoubleSide});
-  const machineMat=new THREE.MeshBasicMaterial({color:0x26322e,side:THREE.DoubleSide});
+  const wood=createWoodMaterial();
+  const selected=createHighlightMaterial();
+  const edgeMat=createEdgeMaterial();
+  const dowelMat=new THREE.MeshBasicMaterial({color:VIEWER_COLORS.dowel,side:THREE.DoubleSide});
+  const machineMat=new THREE.MeshBasicMaterial({color:VIEWER_COLORS.hardware,side:THREE.DoubleSide});
   const root=new THREE.Group(); root.scale.setScalar(U); scene.add(root);
   const parts=[], markers=[];
 
@@ -81,7 +82,7 @@ function startViewer() {
   for(let i=0;i<10;i++){const x=-910+i*202.22,slat=boxPart("parrilla",[100,T,815],[x,109.25,0],[0,100+(i%2)*20,0]);
     for(const dx of [-25,25])for(const z of [-398.25,398.25])mark(slat,dx,-T/2-.8,z,8,"y","tarugo");}
 
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,18),new THREE.MeshStandardMaterial({color:0xdfe5df,roughness:1}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,18),new THREE.MeshStandardMaterial({color:VIEWER_COLORS.floor,roughness:1}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
   const aliases={lh:"lateral-hueco",lc:"lateral-completo",c:"cabecera",p:"parrilla",t:"tirante"};
   let active=aliases[route.get("p")]||route.get("pieza")||"lateral-hueco", amount=0;
   if(!pieces[active])active="lateral-hueco"; select.value=active;

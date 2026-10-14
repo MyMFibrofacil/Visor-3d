@@ -18,6 +18,7 @@ Picky Kids
 ├─ Cama Montessori Emi
 ├─ Juguetero Bajo x2 Emi
 ├─ Juguetero Alto Emi
+├─ Juguetero x2 con Estante
 └─ Baúl Emi
 ```
 
